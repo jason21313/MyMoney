@@ -2,6 +2,7 @@ import customtkinter as ctk
 import CTkGradient as ctg
 import sqlite3
 from main_page import *
+from PIL import Image
 
 """setup piece for the user database"""
 connection = sqlite3.connect("user_database.db")
@@ -15,6 +16,10 @@ def reset_db():
     connection.commit()
     connection.close()
 
+def start_main(r):
+    gradient_frame.destroy()
+    frame.destroy()
+    create_main(r)
 
 """
 Function that checks to see if entered username and password are correct
@@ -30,9 +35,7 @@ def login():
         error_message.pack(pady=(10,0))
         new_account_button.pack(pady=(50,20))
     else:
-        gradient_frame.destroy()
-        frame.destroy()
-        create_main(root)
+        start_main(root)
 
 """
 Function that transitions from the login page to the signup page 
@@ -44,8 +47,11 @@ def signup_page():
     error_message.pack_forget()
     gradient_frame.pack(pady=(100,0))
     frame.pack(pady=(0,10))
-    top.configure(text="To create an Account Please\n Enter a Username and Password")
+    img_frame.pack(pady=(50,20))
+    top.configure(text="To create an Account\nPlease Enter a Username\nand Password")
+    image_text.pack_forget()
     enter_button.pack_forget()
+    details.pack_forget()
     new_account_button.pack_forget()
     create_button = ctk.CTkButton(frame, text='Sign Up', command=lambda: create_account(user_entry.get(),passwd_entry.get()), width=225)
     create_button.pack(pady=1)
@@ -63,9 +69,7 @@ def create_account(username,password):
         error_message.pack()
     connection.commit()
     connection.close()
-    gradient_frame.destroy()
-    frame.destroy()
-    create_main(root)
+    start_main(root)
 
 """setup piece to create the login page / behind the scenes things"""
 root = ctk.CTk()
@@ -80,6 +84,7 @@ w=root.winfo_screenwidth()
 root.bind('<Return>', lambda e: login())
 root.bind('<Escape>', lambda e: root.destroy())
 root.bind('<r>', lambda e: reset_db())
+root.bind('<q>', lambda e: start_main(root))
 
 """setup that creates all the elements on the login page"""
 gradient_frame=ctg.GradientFrame(root, colors=("#6f2da8","#5bb2fe"), direction="vertical",height=10,width=w//4,corner_radius=50)
@@ -88,8 +93,17 @@ gradient_frame.pack_propagate(False)
 frame = ctk.CTkFrame(root,width=w//4,height=h//3+50,fg_color='white',corner_radius=0)
 frame.pack_propagate(False)
 frame.pack()
-top=ctk.CTkLabel(frame,text='Welcome Back to MyMoney\nPlease Login to your Account Below',text_color='black',font=("trebuchet ms",25))
-top.pack(pady=(50,30))
+img_frame=ctk.CTkFrame(frame,fg_color='white',corner_radius=0)
+img_frame.pack_propagate(False)
+img_frame.pack(pady=(30,5),anchor="center")
+img=Image.open("white_background.png")
+image=ctk.CTkImage(light_image=img,dark_image=img,size=(100,100))
+image_text=ctk.CTkLabel(img_frame,image=image,text="")
+image_text.grid(row=0,column=0)
+top=ctk.CTkLabel(img_frame,text='Welcome Back to MyMoney',text_color='black',font=("trebuchet ms",25,"underline"))
+top.grid(row=0,column=1)
+details=ctk.CTkLabel(frame,text="Please Login to your Account Below",text_color='black',font=("trebuchet ms",25))
+details.pack(pady=(0,10))
 user_entry=ctk.CTkEntry(frame,placeholder_text='Enter Username:',font=("Trebuchet MS",15),width=250)
 user_entry.pack(pady=10)
 passwd_entry=ctk.CTkEntry(frame,placeholder_text='Enter Password:',font=("Trebuchet MS",15),width=250)
@@ -99,6 +113,5 @@ enter_button.pack(pady=1)
 error_message = ctk.CTkLabel(frame,text='Incorrect username or password', text_color='red',font=("Trebuchet MS",15))
 new_account_button=ctk.CTkButton(frame,text='Click to make a New Account',command=signup_page,font=("Trebuchet MS",15))
 new_account_button.pack(pady=(50,20))
-
 
 root.mainloop()
