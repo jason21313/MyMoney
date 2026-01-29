@@ -41,6 +41,7 @@ def login():
         root.unbind('<r>')
         root.unbind('<q>')
         start_main(root)
+        connection.close()
 
 """
 Function that transitions from the login page to the signup page 

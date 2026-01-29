@@ -1,7 +1,5 @@
-import customtkinter as ctk
-import sqlite3
-from PIL import Image
-from section_functions import *
+from sections_files.profile_functions import *
+from sections_files.payments_functions import *
 
 """Function that creates the initial section of the main page of the app"""
 def create_main(root):
@@ -37,14 +35,14 @@ def create_main(root):
                                font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: tracking(top_text,inner_frame))
     payments_b = ctk.CTkButton(outer_frame, text='Payments',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
                                font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: payments(top_text,inner_frame))
-    account_b = ctk.CTkButton(outer_frame, text='Account',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
-                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: account(top_text,inner_frame,root))
+    profile_b = ctk.CTkButton(outer_frame, text='Profile',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
+                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: profile(top_text,inner_frame,root))
     home_b.grid(row=2,column=0,padx=(10,10),pady=(10,0),sticky='n')
     budget_b.grid(row=3,column=0,padx=(10,10),pady=(10,0),sticky='n')
     savings_b.grid(row=4,column=0,padx=(10,10),pady=(10,0),sticky='n')
     tracking_b.grid(row=5,column=0,padx=(10,10),pady=(10,0),sticky='n')
     payments_b.grid(row=6,column=0,padx=(10,10),pady=(10,0),sticky='n')
-    account_b.grid(row=7,column=0,padx=(10,10),pady=(10,0),sticky='n')
+    profile_b.grid(row=7,column=0,padx=(10,10),pady=(10,0),sticky='n')
 
     #inner frame that will change depending on the current section of the website
     inner_frame=ctk.CTkFrame(outer_frame,width=w-350,height=770, fg_color="#d7d7d7")
