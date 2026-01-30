@@ -1,6 +1,3 @@
-import customtkinter as ctk
-import CTkGradient as ctg
-import sqlite3
 from main_page import *
 from PIL import Image
 
@@ -37,9 +34,9 @@ def login():
         new_account_button.pack(pady=(30,20))
         root.after(4000,error_message.destroy)
     else:
+        create_user_id(u,p)
         root.unbind('<Return>')
-        root.unbind('<r>')
-        root.unbind('<q>')
+        # root.unbind('<r>')
         start_main(root)
         connection.close()
 
@@ -71,6 +68,7 @@ Function that creates and adds a new account within the user database
 def create_account(username,password):
     try:
         cursor.execute(f"INSERT INTO users_new (username,password) VALUES('{username}','{password}')")
+        create_user_id(username,password)
     except sqlite3.IntegrityError:
         error_message.configure(text="Username already exists")
         error_message.pack()
@@ -92,8 +90,7 @@ h=root.winfo_screenheight()
 w=root.winfo_screenwidth()
 root.bind('<Return>', lambda e: login())
 root.bind('<Escape>', lambda e: root.destroy())
-root.bind('<r>', lambda e: reset_db())
-root.bind('<q>', lambda e: start_main(root))
+# root.bind('<r>', lambda e: reset_db())
 
 #setup that creates all the elements on the login page
 gradient_frame=ctg.GradientFrame(root, colors=("#6f2da8","#5bb2fe"), direction="vertical",

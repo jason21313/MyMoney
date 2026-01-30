@@ -1,5 +1,6 @@
 from sections_files.profile_functions import *
 from sections_files.payments_functions import *
+from sections_files.misc_functions import *
 
 """Function that creates the initial section of the main page of the app"""
 def create_main(root):
@@ -51,8 +52,8 @@ def create_main(root):
     inner_frame.grid_propagate(False)
 
 #temp stuff to skip login process for developmental purposes
-r= ctk.CTk()
-r.bind("<Escape>", lambda e: r.destroy())
-create_main(r)
-r.after(1,r.state,'zoomed')
-r.mainloop()
+# r= ctk.CTk()
+# r.bind("<Escape>", lambda e: r.destroy())
+# create_main(r)
+# r.after(1,r.state,'zoomed')
+# r.mainloop()
