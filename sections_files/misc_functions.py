@@ -3,7 +3,7 @@ import CTkGradient as ctg
 import sqlite3
 from PIL import Image
 import pandas as pd
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 import datetime
 
 user_id=0
@@ -13,6 +13,10 @@ def delete_contents(element):
     for element in element.winfo_children():
         element.destroy()
 
+"""
+Function that creates a global variable of the user id for the given 
+username and password to be used later in the program
+"""
 def create_user_id(username,password):
     global user_id
     engine = create_engine('sqlite:///user_database.db')
