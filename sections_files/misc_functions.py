@@ -20,6 +20,9 @@ def create_user_id(username,password):
     user_id = result.iloc[0]['id']
     print(user_id)
 
+
+
+
 """Function that creates the contents of the home page"""
 def home(top_text,inner_frame):
     delete_contents(inner_frame)

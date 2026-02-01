@@ -68,7 +68,6 @@ Function that creates and adds a new account within the user database
 def create_account(username,password):
     try:
         cursor.execute(f"INSERT INTO users_new (username,password) VALUES('{username}','{password}')")
-        create_user_id(username,password)
     except sqlite3.IntegrityError:
         error_message.configure(text="Username already exists")
         error_message.pack()
@@ -76,6 +75,7 @@ def create_account(username,password):
         return None
     connection.commit()
     connection.close()
+    create_user_id(username, password)
     return start_main(root)
 
 #setup piece to create the login page / behind the scenes things
