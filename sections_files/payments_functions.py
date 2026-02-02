@@ -29,10 +29,10 @@ def payments(top_text,inner_frame):
     pay_button=m.ctk.CTkButton(inner_frame,text="Pay Payment",command=lambda: pay(top_text,inner_frame,w,h),font=("Trebuchet MS",30),
                                   width=250,height=60)
     pay_button.grid(row=2,column=0)
-    edit_button=m.ctk.CTkButton(inner_frame,text="Edit Payment",command=edit,font=("Trebuchet MS",30),
+    edit_button=m.ctk.CTkButton(inner_frame,text="Edit Payment",command=lambda: edit(top_text,inner_frame,w,h),font=("Trebuchet MS",30),
                                   width=250,height=60)
     edit_button.grid(row=3,column=0)
-    delete_button = m.ctk.CTkButton(inner_frame, text="Delete Payment", command=delete,font=("Trebuchet MS",30),
+    delete_button = m.ctk.CTkButton(inner_frame, text="Delete Payment", command=lambda: delete(top_text,inner_frame,w,h),font=("Trebuchet MS",30),
                                   width=250,height=60)
     delete_button.grid(row=4, column=0)
 
@@ -42,9 +42,8 @@ def payments(top_text,inner_frame):
     text=m.ctk.CTkLabel(scroll_frame,text=show_payments(),font=("Trebuchet MS",40),text_color="white")
     text.pack(padx=10,pady=10)
 
-"""
-Function that creates the content for generating new payments
-"""
+
+"""Function that creates the content for generating new payments"""
 def create(top_text,inner_frame):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyCreatePayment")
@@ -99,7 +98,7 @@ def pay(top_text,inner_frame,w,h):
     text.pack(padx=10, pady=10)
 
 """
-Function that adds a payment to the list of payments to be changed.
+Function that adds a payment to the dict of payments to be changed.
 @:param payments_dict dict of payments to be changed.
 @:param payment_entry the entry where the name of the payment 
         will be drawn from.
@@ -120,11 +119,65 @@ def save_pay(top_text,inner_list,payments_dict):
     payments(top_text,inner_list)
 
 
-def edit():
-    print("Editing Payments")
+def edit(top_text,inner_frame,w,h):
+    m.delete_contents(inner_frame)
+    top_text.configure(text="MyEditingPayments")
+    # left side of the frame, shows
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below",
+                                text_color="black", font=("Trebuchet MS", 30))
+    guide_text.grid(row=0, column=0, pady=(10, 0))
 
-def delete():
-    print("Deleting Payment")
+
+    # right side of the frame, the scrollable frame that shows all payments for a user
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
+    scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
+    text.pack(padx=10, pady=10)
+
+
+"""Function that creates the content for the user to delete payments"""
+def delete(top_text,inner_frame,w,h):
+    # list of payments that will be deleted
+    payments_list = []
+    m.delete_contents(inner_frame)
+    top_text.configure(text="MyDeletingPayments")
+    # left side of the frame, shows
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below\n",
+                                text_color="black", font=("Trebuchet MS", 30))
+    guide_text.grid(row=0, column=0, pady=(10, 0))
+    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=300, height=35,
+                                   font=("Trebuchet MS", 30))
+    payment_entry.grid(row=1, column=0)
+    delete_button=m.ctk.CTkButton(inner_frame,text="Click to Delete Payment",font=("Trebuchet MS", 30),
+                                  command=lambda: add_delete(payments_list,payment_entry))
+    delete_button.grid(row=2, column=0)
+    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 30),
+                                          command=lambda: save_delete(top_text,inner_frame,payments_list))
+    save_changes_button.grid(row=3, column=0)
+
+    # right side of the frame, the scrollable frame that shows all payments for a user
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
+    scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
+    text.pack(padx=10, pady=10)
+
+"""
+Function that adds a payment to the list of payments to be deleted.
+@:param payments_list list of payments to be deleted.
+@:param payment_entry the entry where the name of the payment 
+        will be drawn from.
+"""
+def add_delete(payments_list,payment_entry):
+    payments_list.append(payment_entry.get().strip())
+    payment_entry.delete(0,'end')
+
+"""Function that updates the database with the payments to be Deleted"""
+def save_delete(top_text,inner_frame,payments_list):
+    for payment in payments_list:
+        with engine.begin() as conn:
+            conn.execute(m.text(f"""DELETE FROM payments WHERE name = '{payment}'"""))
+    payments(top_text,inner_frame)
+
 
 """
 Function that retrieves all payments for a the current user and turns it into a string to display
