@@ -23,7 +23,7 @@ def payments(top_text,inner_frame):
     #left side of the frame, buttons for functions and today's date
     date=m.ctk.CTkLabel(inner_frame,text=f"Today's Date:\n{today}",text_color="black",font=("Trebuchet MS",30))
     date.grid(row=0,column=0,pady=(10,0))
-    create_button=m.ctk.CTkButton(inner_frame,text="Create Payment",command=lambda:create(top_text,inner_frame),font=("Trebuchet MS",30),
+    create_button=m.ctk.CTkButton(inner_frame,text="Create Payment",command=lambda:create(top_text,inner_frame,w,h),font=("Trebuchet MS",30),
                                   width=250,height=60)
     create_button.grid(row=1,column=0)
     pay_button=m.ctk.CTkButton(inner_frame,text="Pay Payment",command=lambda: pay(top_text,inner_frame,w,h),font=("Trebuchet MS",30),
@@ -37,25 +37,37 @@ def payments(top_text,inner_frame):
     delete_button.grid(row=4, column=0)
 
     #right side of the frame, the scrollable frame that shows all payments for a user
-    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w//2, height=h-425,fg_color="black")#"#d7d7d7")
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w//2, height=h-425,fg_color="#bebebe")
     scroll_frame.grid(row=0,column=1,rowspan=5,sticky='e',pady=10,padx=10)
-    text=m.ctk.CTkLabel(scroll_frame,text=show_payments(),font=("Trebuchet MS",40),text_color="white")
+    text=m.ctk.CTkLabel(scroll_frame,text=show_payments(),font=("Trebuchet MS",40),text_color="black")
     text.pack(padx=10,pady=10)
 
 
 """Function that creates the content for generating new payments"""
-def create(top_text,inner_frame):
+def create(top_text,inner_frame,w,h):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyCreatePayment")
-    name_input=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter a Name for the Payment",width=500,height=35)
-    name_input.pack()
-    amount_input = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter a Amount for the Payment", width=500, height=35)
-    amount_input.pack()
-    date_input = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter a Date for the Payment", width=500, height=35)
-    date_input.pack()
-    new_payment = m.ctk.CTkButton(inner_frame,text="Create Payment",font=("Trebuchet MS",30),
+    #left side of the frame
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Enter the Following\nto Create a Payment",
+                                text_color="black", font=("Trebuchet MS", 25))
+    guide_text.grid(row=0, column=0, pady=(10, 0))
+    name_input=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Name Here:",width=250,height=50,
+                              font=("Trebuchet MS", 20))
+    name_input.grid(row=1,column=0)
+    amount_input = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Amount Here:", width=250, height=50,
+                                  font=("Trebuchet MS", 20))
+    amount_input.grid(row=2,column=0)
+    date_input = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Date Here:", width=250, height=50,
+                                font=("Trebuchet MS", 20))
+    date_input.grid(row=3,column=0)
+    new_payment = m.ctk.CTkButton(inner_frame,text="Create Payment",font=("Trebuchet MS",25),width=250,height=50,
                                   command=lambda: create_payment(top_text,inner_frame,name_input.get().strip(),amount_input.get().strip(),date_input.get().strip()))
-    new_payment.pack()
+    new_payment.grid(row=4,column=0)
+    # right side of the frame, the scrollable frame that shows all payments for a user
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="#bebebe")
+    scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="black")
+    text.pack(padx=10, pady=10)
 
 """
 Function that enters the new payment into the database and returns the user to the payments screen
@@ -76,25 +88,25 @@ def pay(top_text,inner_frame,w,h):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyPayingPayments")
     #left side of the frame, shows
-    guide_text=m.ctk.CTkLabel(inner_frame,text="Please Enter a Payment Name Below\nThen select Paid or Unpaid",
-                              text_color="black",font=("Trebuchet MS",30))
+    guide_text=m.ctk.CTkLabel(inner_frame,text="Enter a Payment Name\nThen select\nPaid or Unpaid",
+                              text_color="black",font=("Trebuchet MS",25))
     guide_text.grid(row=0,column=0,pady=(10,0))
-    payment_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Name Here: ",width=300,height=35,font=("Trebuchet MS",30))
+    payment_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Name Here: ",width=250,height=50,font=("Trebuchet MS",20))
     payment_entry.grid(row=1,column=0)
-    paid_button=m.ctk.CTkButton(inner_frame,text="Click to make Payment Paid",font=("Trebuchet MS",30),
+    paid_button=m.ctk.CTkButton(inner_frame,text="Click to make\nPayment Paid",font=("Trebuchet MS",25),width=250,height=50,
                                 command=lambda: add_payment(payments_dict,payment_entry,True))
     paid_button.grid(row=2,column=0)
-    unpaid_button=m.ctk.CTkButton(inner_frame,text="Click to make Payment Unpaid", font=("Trebuchet MS",30),
+    unpaid_button=m.ctk.CTkButton(inner_frame,text="Click to make\nPayment Unpaid", font=("Trebuchet MS",25),width=250,height=40,
                                   command=lambda: add_payment(payments_dict,payment_entry,False))
     unpaid_button.grid(row=3,column=0)
-    save_changes_button=m.ctk.CTkButton(inner_frame,text="Click to Save Changes",font=("Trebuchet MS",30),
+    save_changes_button=m.ctk.CTkButton(inner_frame,text="Click to Save Changes",font=("Trebuchet MS",25),width=250,height=50,
                                         command=lambda: save_pay(top_text,inner_frame,payments_dict))
     save_changes_button.grid(row=4,column=0)
 
     # right side of the frame, the scrollable frame that shows all payments for a user
-    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="#bebebe")
     scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
-    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="black")
     text.pack(padx=10, pady=10)
 
 """
@@ -115,8 +127,9 @@ def add_payment(payments_dict,payment_entry,paid):
 def save_pay(top_text,inner_list,payments_dict):
     for payment in payments_dict:
         with engine.begin() as conn:
-            conn.execute(m.text(f"""UPDATE payments SET paid = {payments_dict[payment]} WHERE name = '{payment}'"""))
+            conn.execute(m.text(f"""UPDATE payments SET paid = {payments_dict[payment]} WHERE name = '{payment}' AND id = {m.user_id}"""),)
     payments(top_text,inner_list)
+
 
 """Function that creates the content for the user to edit payments"""
 def edit(top_text,inner_frame,w,h):
@@ -124,30 +137,30 @@ def edit(top_text,inner_frame,w,h):
     payments_dict={}
     m.delete_contents(inner_frame)
     top_text.configure(text="MyEditingPayments")
-    # left side of the frame, shows
-    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below to Edit\nLeave Entries blank to not Change",
-                                text_color="black", font=("Trebuchet MS", 30))
+    # left side of the frame
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Enter a Payment Name\nLeave Entries blank\nto not Change",
+                                text_color="black", font=("Trebuchet MS", 25))
     guide_text.grid(row=0, column=0, pady=(10, 0))
-    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=300, height=35,
-                                   font=("Trebuchet MS", 30))
-    payment_entry.grid(row=1, column=0)
+    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=250, height=50,
+                                   font=("Trebuchet MS", 20))
+    payment_entry.grid(row=1, column=0,pady=(0,30))
     #Entries for changes to the payment
-    name_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Name Here:",font=("Trebuchet MS",30))
+    name_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Name Here:",font=("Trebuchet MS",20),width=250,height=50,)
     name_entry.grid(row=2, column=0)
-    amount_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Amount Here:",font=("Trebuchet MS",30))
+    amount_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Amount Here:",font=("Trebuchet MS",20),width=250,height=50,)
     amount_entry.grid(row=3, column=0)
-    date_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Date Here:",font=("Trebuchet MS",30))
+    date_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Date Here:",font=("Trebuchet MS",20),width=250,height=50,)
     date_entry.grid(row=4, column=0)
-    enter_changes=m.ctk.CTkButton(inner_frame,text="Click to Make Change",font=("Trebuchet MS",30),
+    enter_changes=m.ctk.CTkButton(inner_frame,text="Click to Make Change",font=("Trebuchet MS",25),width=250,height=50,
                                   command=lambda: add_edit(payments_dict,payment_entry,name_entry,amount_entry,date_entry))
     enter_changes.grid(row=5, column=0)
-    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 30),
+    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 25),width=250,height=50,
                                           command=lambda: save_edit(top_text,inner_frame,payments_dict))
     save_changes_button.grid(row=6, column=0)
     # right side of the frame, the scrollable frame that shows all payments for a user
-    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="#bebebe")
     scroll_frame.grid(row=0, column=1, rowspan=7, sticky='e', pady=10, padx=10)
-    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="black")
     text.pack(padx=10, pady=10)
 
 """
@@ -193,8 +206,9 @@ def add_edit(payment_dict,payment_entry,name_entry,amount_entry,date_entry):
 def save_edit(top_text,inner_frame,payment_dict):
     for payment in payment_dict:
         with engine.begin() as conn:
-            conn.execute(m.text(f"""UPDATE payments SET name = '{payment_dict[payment][0]}', amount = {payment_dict[payment][1]}, date = '{payment_dict[payment][2]}' WHERE name = '{payment}'"""))
+            conn.execute(m.text(f"""UPDATE payments SET name = '{payment_dict[payment][0]}', amount = {payment_dict[payment][1]}, date = '{payment_dict[payment][2]}' WHERE name = '{payment}' AND id = {m.user_id}"""))
     payments(top_text,inner_frame)
+
 
 """Function that creates the content for the user to delete payments"""
 def delete(top_text,inner_frame,w,h):
@@ -202,24 +216,24 @@ def delete(top_text,inner_frame,w,h):
     payments_list = []
     m.delete_contents(inner_frame)
     top_text.configure(text="MyDeletingPayments")
-    # left side of the frame, shows
-    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below\n",
+    # left side of the frame
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Enter a Payment\nName to Delete",
                                 text_color="black", font=("Trebuchet MS", 30))
     guide_text.grid(row=0, column=0, pady=(10, 0))
-    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=300, height=35,
-                                   font=("Trebuchet MS", 30))
+    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=250, height=50,
+                                   font=("Trebuchet MS", 20))
     payment_entry.grid(row=1, column=0)
-    delete_button=m.ctk.CTkButton(inner_frame,text="Click to Delete Payment",font=("Trebuchet MS", 30),
+    delete_button=m.ctk.CTkButton(inner_frame,text="Click to\nDelete Payment",font=("Trebuchet MS", 25),width=250,height=50,
                                   command=lambda: add_delete(payments_list,payment_entry))
     delete_button.grid(row=2, column=0)
-    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 30),
+    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 25),width=250,height=50,
                                           command=lambda: save_delete(top_text,inner_frame,payments_list))
     save_changes_button.grid(row=3, column=0)
 
     # right side of the frame, the scrollable frame that shows all payments for a user
-    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
+    scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="#bebebe")
     scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
-    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
+    text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="black")
     text.pack(padx=10, pady=10)
 
 """
@@ -236,7 +250,7 @@ def add_delete(payments_list,payment_entry):
 def save_delete(top_text,inner_frame,payments_list):
     for payment in payments_list:
         with engine.begin() as conn:
-            conn.execute(m.text(f"""DELETE FROM payments WHERE name = '{payment}'"""))
+            conn.execute(m.text(f"""DELETE FROM payments WHERE name = '{payment}' AND id = {m.user_id}"""))
     payments(top_text,inner_frame)
 
 
