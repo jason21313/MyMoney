@@ -118,22 +118,83 @@ def save_pay(top_text,inner_list,payments_dict):
             conn.execute(m.text(f"""UPDATE payments SET paid = {payments_dict[payment]} WHERE name = '{payment}'"""))
     payments(top_text,inner_list)
 
-
+"""Function that creates the content for the user to edit payments"""
 def edit(top_text,inner_frame,w,h):
+    #dict of payments to be edited, key=name, values=[name,amount,date]
+    payments_dict={}
     m.delete_contents(inner_frame)
     top_text.configure(text="MyEditingPayments")
     # left side of the frame, shows
-    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below",
+    guide_text = m.ctk.CTkLabel(inner_frame, text="Please Enter a Payment Name Below to Edit\nLeave Entries blank to not Change",
                                 text_color="black", font=("Trebuchet MS", 30))
     guide_text.grid(row=0, column=0, pady=(10, 0))
-
-
+    payment_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name Here: ", width=300, height=35,
+                                   font=("Trebuchet MS", 30))
+    payment_entry.grid(row=1, column=0)
+    #Entries for changes to the payment
+    name_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Name Here:",font=("Trebuchet MS",30))
+    name_entry.grid(row=2, column=0)
+    amount_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Amount Here:",font=("Trebuchet MS",30))
+    amount_entry.grid(row=3, column=0)
+    date_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Change Date Here:",font=("Trebuchet MS",30))
+    date_entry.grid(row=4, column=0)
+    enter_changes=m.ctk.CTkButton(inner_frame,text="Click to Make Change",font=("Trebuchet MS",30),
+                                  command=lambda: add_edit(payments_dict,payment_entry,name_entry,amount_entry,date_entry))
+    enter_changes.grid(row=5, column=0)
+    save_changes_button = m.ctk.CTkButton(inner_frame, text="Click to Save Changes", font=("Trebuchet MS", 30),
+                                          command=lambda: save_edit(top_text,inner_frame,payments_dict))
+    save_changes_button.grid(row=6, column=0)
     # right side of the frame, the scrollable frame that shows all payments for a user
     scroll_frame = m.ctk.CTkScrollableFrame(inner_frame, width=w // 2, height=h - 425, fg_color="black")  # "#d7d7d7")
-    scroll_frame.grid(row=0, column=1, rowspan=5, sticky='e', pady=10, padx=10)
+    scroll_frame.grid(row=0, column=1, rowspan=7, sticky='e', pady=10, padx=10)
     text = m.ctk.CTkLabel(scroll_frame, text=show_payments(), font=("Trebuchet MS", 40), text_color="white")
     text.pack(padx=10, pady=10)
 
+"""
+Function that adds a payment to the dict of payments to be edited
+@:param payment_dict dict of payments to be edited
+@:param payment_entry the entry where the name of the payment 
+        will be drawn from.
+@:param name_entry the entry where the new name for the payment 
+        will be drawn from.
+@:param amount_entry the entry where the new amount for the payment 
+        will be drawn from.
+@:param date_entry the entry where the new date for the payment 
+        will be drawn from.
+"""
+def add_edit(payment_dict,payment_entry,name_entry,amount_entry,date_entry):
+    df = pd.read_sql(f"""SELECT * FROM payments WHERE name = '{payment_entry.get().strip()}' AND id = {m.user_id}""", con=engine)
+    #catch to see if the entered payment is in the user's payments
+    if df.empty:
+        pass
+    else:
+        #catches for unchanged values
+        if name_entry.get().strip()=="":
+            new_name=df.iloc[0]['name']
+        else:
+            new_name=name_entry.get().strip()
+
+        if amount_entry.get().strip()=="":
+            new_amount=df.iloc[0]['amount']
+        else:
+            new_amount=int(amount_entry.get().strip())
+
+        if date_entry.get().strip()=="":
+            new_date=df.iloc[0]['date']
+        else:
+            new_date=date_entry.get().strip()
+        payment_dict[payment_entry.get().strip()]=[new_name,new_amount,new_date]
+        payment_entry.delete(0,'end')
+        name_entry.delete(0,'end')
+        amount_entry.delete(0,'end')
+        date_entry.delete(0,'end')
+
+"""Function that updates the database with the payments to be Edited"""
+def save_edit(top_text,inner_frame,payment_dict):
+    for payment in payment_dict:
+        with engine.begin() as conn:
+            conn.execute(m.text(f"""UPDATE payments SET name = '{payment_dict[payment][0]}', amount = {payment_dict[payment][1]}, date = '{payment_dict[payment][2]}' WHERE name = '{payment}'"""))
+    payments(top_text,inner_frame)
 
 """Function that creates the content for the user to delete payments"""
 def delete(top_text,inner_frame,w,h):
