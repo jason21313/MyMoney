@@ -34,12 +34,6 @@ def home(top_text,inner_frame):
 
 
 """Function that creates the contents of the budget page"""
-def budget(top_text,inner_frame):
-    delete_contents(inner_frame)
-    top_text.configure(text="MyBudget")
-
-
-"""Function that creates the contents of the budget page"""
 def savings(top_text,inner_frame):
     delete_contents(inner_frame)
     top_text.configure(text="MySavings")
