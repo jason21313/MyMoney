@@ -34,27 +34,91 @@ def budget(top_text,inner_frame):
         survey_button.grid(row=1, column=0)
         create_own_button = m.ctk.CTkButton(inner_frame, text="Click here to Create your Own Budget",
                                             font=("Trebuchet MS", 35),
-                                            command=lambda: create_own(top_text, inner_frame))
+                                            command=lambda: create_own(top_text, inner_frame,False))
         create_own_button.grid(row=1, column=1)
     else:
         in_table(top_text, inner_frame)
 
 def in_table(top_text,inner_frame):
-    temp_text = m.ctk.CTkLabel(inner_frame, text="in table", text_color="black", font=("Trebuchet MS", 35))
-    temp_text.pack(pady=(0, 10))
-    sizes=m.np.array(m.pd.read_sql(f"SELECT * FROM budget_new WHERE id = {m.user_id}", engine).to_numpy())
-    labels=["Housing",'Transportation','Bills','Education','Health and Wellness','Food', 'Savings',
-            'Kids', 'Entertainment','Shopping', 'Pets','Travel','Gifts','Misc']
-    pie_chart=m.plt.pie(sizes, labels=labels)
-    pie_ctk=FigureCanvasTkAgg(pie_chart, master=inner_frame)
-    pie_ctk.get_tk_widget().pack()
+    m.delete_contents(inner_frame)
+    budget_percents = []
+    labels = ["Housing", 'Transportation', 'Bills', 'Education', 'Health and Wellness', 'Food', 'Savings',
+              'Kids', 'Entertainment', 'Shopping', 'Pets', 'Travel', 'Gifts', 'Misc']
+    df = m.pd.read_sql(f"SELECT * FROM budget_new WHERE id = {m.user_id}", engine).to_numpy()
+    for i in range(2, df.size):
+        budget_percents.append(int(df[0][i]))
+    i = 0
+    for percent in budget_percents:
+        if percent == 0:
+            budget_percents.pop(i)
+            labels.pop(i)
+        i += 1
+    income=int(df[0][1])
+    create_chart(inner_frame,labels,budget_percents,5)
+    explanation_text=m.ctk.CTkLabel(inner_frame,text="This how your Money is being Split\nTo look in more Detail\nClick the following Buttons\nTo Edit click the Bottom button"
+                                    ,text_color="black", font=("Trebuchet MS", 35))
+    explanation_text.grid(row=0,column=1)
+    show_yearly=m.ctk.CTkButton(inner_frame,text="Show Yearly Budget",font=("Trebuchet MS", 35),
+                                command=lambda:show(top_text, inner_frame,1,income,labels,budget_percents))
+    show_yearly.grid(row=1,column=1)
+    show_monthly=m.ctk.CTkButton(inner_frame,text="Show Monthly Budget",font=("Trebuchet MS", 35),
+                                 command=lambda:show(top_text, inner_frame,12,income,labels,budget_percents))
+    show_monthly.grid(row=2,column=1)
+    show_daily=m.ctk.CTkButton(inner_frame,text="Show Weekly Budget",font=("Trebuchet MS", 35),
+                               command=lambda:show(top_text, inner_frame,52,income,labels,budget_percents))
+    show_daily.grid(row=3,column=1)
+    edit_button=m.ctk.CTkButton(inner_frame,text="Edit Budget",font=("Trebuchet MS", 35),
+                                command=lambda: create_own(top_text,inner_frame,True))
+    edit_button.grid(row=4,column=1)
+
+def create_chart(inner_frame,labels,budget_percents,rows):
+    sizes = m.np.array(budget_percents)
+    fig, ax = m.plt.subplots(figsize=(12, 12))
+    fig.patch.set_facecolor('#d7d7d7')
+    ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+    ax.axis('equal')
+    pie_ctk = FigureCanvasTkAgg(fig, master=inner_frame)
+    pie_ctk.draw()
+    pie_ctk.get_tk_widget().grid(row=0, column=0, rowspan=rows)
+
+def show(top_text,inner_frame,amount,income,labels,budget_percents):
+    m.delete_contents(inner_frame)
+    if amount==1:
+        top_text.configure(text="MyShowYearlyBudget")
+        guide_text=m.ctk.CTkLabel(inner_frame,text='Displaying Yearly Budget',font=("Trebuchet MS", 35),
+                                  text_color="black")
+        guide_text.grid(row=0,column=1,sticky='n')
+    elif amount==12:
+        top_text.configure(text="MyShowMonthlyBudget")
+        guide_text = m.ctk.CTkLabel(inner_frame, text='Displaying Monthly Budget', font=("Trebuchet MS", 35),
+                                    text_color="black")
+        guide_text.grid(row=0, column=1,sticky='n')
+    else:
+        top_text.configure(text="MyShowWeeklyBudget")
+        guide_text = m.ctk.CTkLabel(inner_frame, text='Displaying Weekly Budget', font=("Trebuchet MS", 35),
+                                    text_color="black")
+        guide_text.grid(row=0, column=1,sticky='n')
+    create_chart(inner_frame,labels,budget_percents,3)
+    amount_text=''
+    for i in range(0,len(labels)-1):
+        if budget_percents[i]==0:
+            pass
+        elif i==len(labels)-1:
+            amount_text += f"{labels[i]}: ${round(((budget_percents[i] / 100) * income) / amount, 2)}"
+        else:
+            amount_text+=f"{labels[i]}: ${round(((budget_percents[i]/100)*income)/amount,2)}\n"
+    spending_amounts = m.ctk.CTkLabel(inner_frame, text=amount_text, font=("Trebuchet MS", 30), text_color="black")
+    spending_amounts.grid(row=1,column=1,sticky='n')
+    go_back=m.ctk.CTkButton(inner_frame,text="Return to Budget Page",font=("Trebuchet MS", 35),
+                            command=lambda:budget(top_text,inner_frame))
+    go_back.grid(row=2,column=1,sticky='n')
 
 
 def survey(top_text,inner_frame):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyBudgetSurvey")
 
-def create_own(top_text,inner_frame):
+def create_own(top_text,inner_frame,editing):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyCreateBudget")
     category_entries_dict = {}
@@ -82,11 +146,20 @@ def create_own(top_text,inner_frame):
     create_budget_button=m.ctk.CTkButton(scroll_frame,text="Save and Create Budget",font=("Trebuchet MS", 35),
                                          command=lambda: create_budget(top_text,inner_frame,category_entries_dict,income_entry))
     create_budget_button.pack(pady=10)
+    go_back = m.ctk.CTkButton(scroll_frame, text="Return to Budget Page", font=("Trebuchet MS", 35))
+    if editing:
+        go_back.configure(command=lambda: in_table(top_text,inner_frame))
+    else:
+        go_back.configure(command=lambda: budget(top_text,inner_frame))
+    go_back.pack(pady=10)
 
 def create_budget(top_text,inner_frame,category_entries_dict,income_entry):
     total_percent=0
     for cat in category_entries_dict:
-        total_percent+=int(category_entries_dict[cat].get())
+        if category_entries_dict[cat].get()=='':
+            pass
+        else:
+            total_percent+=int(category_entries_dict[cat].get())
     if total_percent!=100:
         pass
     else:
