@@ -6,7 +6,6 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 import datetime
 import numpy as np
-import matplotlib.pyplot as plt
 
 user_id=0
 
