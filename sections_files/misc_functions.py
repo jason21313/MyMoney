@@ -34,12 +34,6 @@ def home(top_text,inner_frame):
     top_text.configure(text="MyHome")
 
 
-"""Function that creates the contents of the budget page"""
-def savings(top_text,inner_frame):
-    delete_contents(inner_frame)
-    top_text.configure(text="MySavings")
-
-
 """Function that creates the contents of the tracking page"""
 def tracking(top_text,inner_frame):
     delete_contents(inner_frame)
