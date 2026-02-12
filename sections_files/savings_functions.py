@@ -70,24 +70,7 @@ def savings(top_text,inner_frame,root):
         create_savings_button.pack(pady=20)
     #the user has a budget and savings plan so they are given their info
     else:
-        #Savings Plan aspect of the savings page
-        savings_label=m.ctk.CTkLabel(inner_frame,text="MyPlan",text_color="black",font=("Trebuchet MS",35,'bold'))
-        savings_label.grid(row=0,column=0,columnspan=5)
-        pie_chart=m.ctk.CTkButton(inner_frame,text="pretend this is a pie chart")
-        pie_chart.grid(row=1,column=0,rowspan=3)
-        # buttons to display number amounts of savings per time periods
-        explanation_text = m.ctk.CTkLabel(inner_frame, text="For Different Budget Breakdowns\nClick the Following"
-                                          , text_color="black", font=("Trebuchet MS", 35, 'bold'))
-        explanation_text.grid(row=1, column=1,columnspan=3)
-        show_yearly = m.ctk.CTkButton(inner_frame, text="Show Yearly Budget", font=("Trebuchet MS", 35))
-        show_yearly.grid(row=2, column=1, pady=(0, 5))
-        show_monthly = m.ctk.CTkButton(inner_frame, text="Show Monthly Budget", font=("Trebuchet MS", 35))
-        show_monthly.grid(row=2, column=2)
-        show_weekly = m.ctk.CTkButton(inner_frame, text="Show Weekly Budget", font=("Trebuchet MS", 35))
-        show_weekly.grid(row=2, column=3)
-        chart_info=m.ctk.CTkLabel(inner_frame,text="Pie chart info",font=("Trebuchet MS", 35, 'bold'),
-                                  text_color='black')
-        chart_info.grid(row=3,column=1,columnspan=3)
+        in_table(top_text,inner_frame,root)
 
         #Savings Goals aspect of savings page
         # goals_label=m.ctk.CTkLabel(inner_frame,text="MySavingsGoals",font=("Trebuchet MS", 35, 'bold'),
@@ -97,6 +80,91 @@ def savings(top_text,inner_frame,root):
         # scroll_frame.grid(row=5,column=0,columnspan=5)
         # add_goal_button=m.ctk.CTkButton(inner_frame,text='add goal')
         # add_goal_button.grid(row=6,column=0,columnspan=4)
+
+""""""
+def in_table(top_text,inner_frame,root):
+    #list of categories in the savings plan
+    labels=["Investments","Retirement","Savings Goals"]
+    #queries the table to get the values for each category
+    data = m.pd.read_sql(f"SELECT Investments, Retirement, SavingsGoals FROM savings_budget WHERE id={m.user_id}",
+                         engine).to_numpy()
+    # Savings Plan aspect of the savings page
+    savings_label = m.ctk.CTkLabel(inner_frame, text="MyPlan", text_color="black",
+                                   font=("Trebuchet MS", 35, 'bold'))
+    savings_label.grid(row=0, column=0, columnspan=4)
+    #creates the pie chart
+    create_chart(inner_frame,root,data,labels)
+    # buttons to display number amounts of savings per time periods
+    explanation_text = m.ctk.CTkLabel(inner_frame, text_color="black", font=("Trebuchet MS", 35, 'bold'),
+                                      text="For Different Budget Breakdowns\nClick the Following")
+    explanation_text.grid(row=1, column=1, columnspan=3,padx=20)
+    show_yearly = m.ctk.CTkButton(inner_frame, text="Year", font=("Trebuchet MS", 35),
+                                  command=lambda:show(chart_info,data,labels,1))
+    show_yearly.grid(row=2, column=1, pady=(0, 5),padx=(10,0))
+    show_monthly = m.ctk.CTkButton(inner_frame, text="Month", font=("Trebuchet MS", 35),
+                                   command=lambda: show(chart_info,data,labels,12))
+    show_monthly.grid(row=2, column=2,padx=0)
+    show_weekly = m.ctk.CTkButton(inner_frame, text="Week", font=("Trebuchet MS", 35),
+                                  command=lambda: show(chart_info,data,labels, 52))
+    show_weekly.grid(row=2, column=3,padx=(0,10))
+    chart_info = m.ctk.CTkLabel(inner_frame,font=("Trebuchet MS", 35, 'bold'),text_color='black',
+                                text=f"Displaying Yearly\n"
+                                     f"{labels[0]}: {round(int(data[0][0])/1,2)}\n"
+                                     f"{labels[1]}: {round(int(data[0][1])/1,2)}\n"
+                                     f"{labels[2]}: {round(int(data[0][2])/1,2)}\n")
+    chart_info.grid(row=3, column=1, columnspan=3)
+
+"""
+Function that creates the pie chart representation 
+ of the user's savings plan
+
+@:param data numpy array containing the user's information
+             from the table
+@:param labels the names of the three pieces of the
+               savings plan
+"""
+def create_chart(inner_frame,root,data,labels):
+    #turns the data into a list containing the values of each category
+    sizes=[]
+    for d in data[0]:
+        sizes.append(int(d))
+    #creates the pie chart in matplot
+    fig, ax = plt.subplots(figsize=(7,7))
+    fig.patch.set_facecolor('#d7d7d7')
+    ax.pie(sizes,labels=labels,autopct='%1.1f%%',startangle=90,
+           textprops={'size':15})
+    ax.axis('equal')
+    #turns the pie chart into a ctk widget and displays it
+    pie_ctk=FigureCanvasTkAgg(fig, inner_frame)
+    pie_ctk.draw()
+    pie_ctk.get_tk_widget().grid(row=1,column=0,rowspan=4,padx=(30,40))
+    # prevents a matplot bug on program close
+    root.protocol("WM_DELETE_WINDOW", plt.close("all"))
+
+"""
+Function that changes the chart_info label to
+ show data based on a given time span
+ 
+@:param data numpy array containing the user's information
+             from the table
+@:param labels the names of the three pieces of the
+               savings plan
+@:param amount the time span
+"""
+def show(chart_info,data,labels,amount):
+    #checks the amount to give a string that matches
+    if amount==1:
+        size="Yearly"
+    elif amount==12:
+        size="Monthly"
+    else:
+        size="Weekly"
+    #changes the text to be for that time span
+    chart_info.configure(text=f"Displaying {size}\n"
+                              f"{labels[0]}: {round(int(data[0][0])/amount,2)}\n"
+                              f"{labels[1]}: {round(int(data[0][1])/amount,2)}\n"
+                              f"{labels[2]}: {round(int(data[0][2])/amount,2)}\n")
+
 
 """
 Function that creates a new savings plan in the table
