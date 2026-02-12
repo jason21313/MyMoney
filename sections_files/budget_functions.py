@@ -85,9 +85,9 @@ def in_table(top_text,inner_frame,root):
     show_monthly=m.ctk.CTkButton(inner_frame,text="Show Monthly Budget",font=("Trebuchet MS", 35),height=60,width=350,
                                  command=lambda:show(top_text, inner_frame,root,12,income,labels,budget_percents))
     show_monthly.grid(row=2,column=1)
-    show_daily=m.ctk.CTkButton(inner_frame,text="Show Weekly Budget",font=("Trebuchet MS", 35),height=60,width=350,
+    show_weekly=m.ctk.CTkButton(inner_frame,text="Show Weekly Budget",font=("Trebuchet MS", 35),height=60,width=350,
                                command=lambda:show(top_text, inner_frame,root,52,income,labels,budget_percents))
-    show_daily.grid(row=3,column=1)
+    show_weekly.grid(row=3,column=1)
     #button to edit your budget
     edit_text=m.ctk.CTkLabel(inner_frame,text='To Edit your Current Budget\nClick the Below',
                              text_color='black',font=("Trebuchet MS", 35,'bold'))

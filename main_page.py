@@ -33,7 +33,7 @@ def create_main(root):
     budget_b = ctk.CTkButton(outer_frame, text='Budget',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: budget(top_text,inner_frame,root))
     savings_b = ctk.CTkButton(outer_frame, text='Savings',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
-                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: savings(top_text,inner_frame))
+                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: savings(top_text,inner_frame,root))
     tracking_b = ctk.CTkButton(outer_frame, text='Tracking',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
                                font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: tracking(top_text,inner_frame))
     payments_b = ctk.CTkButton(outer_frame, text='Payments',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
