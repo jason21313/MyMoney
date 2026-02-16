@@ -13,7 +13,7 @@ cursor = connection.cursor()
 cursor.execute("""CREATE TABLE IF NOT EXISTS savings_budget (id INTEGER, Income INTEGER, TotalSavings INTEGER, 
                   Investments INTEGER, Retirement INTEGER, SavingsGoals INTEGER)""")
 #creates the savings goals table
-# cursor.execute("""CREATE TABLE IF NOT EXISTS savings_goals (id INTEGER, Name TEXT, Total INTEGER, Current INTEGER, Monthly INTEGER)""")
+cursor.execute("""CREATE TABLE IF NOT EXISTS savings_goals (id INTEGER, Name TEXT, Total INTEGER, Current INTEGER, Monthly INTEGER)""")
 connection.commit()
 connection.close()
 
@@ -118,7 +118,7 @@ def in_table(top_text,inner_frame,root):
     name_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Goal Name:")
     buttons=[]
     add_button=m.ctk.CTkButton(goals_frame,text='add goal',font=("Trebuchet MS", 25),
-                               command=lambda: add(buttons,name_entry))
+                               command=lambda: add(buttons,name_entry,goals_frame,scroll_frame))
     add_button.grid(row=3,column=0,padx=40)
     buttons.append(add_button)
     update_button=m.ctk.CTkButton(goals_frame,text='update goal',font=("Trebuchet MS", 25),
@@ -184,38 +184,83 @@ def show(chart_info,data,labels,amount):
                               f"{labels[2]}: {round(int(data[0][2])/amount,2)}\n")
 
 
-def add(buttons,name_entry):
-    buttons[0].configure(command=lambda:add_goal(buttons,name_entry),text='Add')
+"""Function to transition to adding a goal"""
+def add(buttons,name_entry,goals_frame,scroll_frame):
     buttons[1].grid_forget()
     buttons[2].grid_forget()
+    scroll_frame.grid(row=3,column=1,columnspan=4,rowspan=5)
     name_entry.grid(row=4,column=0,padx=40)
-def add_goal(buttons,name_entry):
-    buttons[0].configure(command=lambda:add(buttons,name_entry),text='add goal')
-    name_entry.grid_forget()
+    total_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Total Amount:")
+    total_entry.grid(row=5,column=0,padx=40)
+    current_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Current Amount:")
+    current_entry.grid(row=6,column=0,padx=40)
+    monthly_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Monthly Amount:")
+    monthly_entry.grid(row=7,column=0,padx=40)
+    entries=[name_entry,total_entry,current_entry,monthly_entry]
+    buttons[0].configure(command=lambda: add_goal(buttons,goals_frame,scroll_frame,entries), text='Add')
+
+    print(m.pd.read_sql("SELECT * FROM savings_goals",engine))
+"""Function that adds a goal"""
+def add_goal(buttons,goals_frame,scroll_frame,entries):
+    name=entries[0].get()
+    total=entries[1].get()
+    current=entries[2].get()
+    month=entries[3].get()
+    if name=='' or total=='' or current=='' or month=='':
+        pass
+    else:
+        df = m.pd.DataFrame({'id':[m.user_id],'Name':[name],'Total':[int(total)],'Current':[int(current)],'Monthly':[int(month)]})
+        df.to_sql('savings_goals',engine,if_exists='append',index=False)
+
+    buttons[0].configure(command=lambda:add(buttons,entries[0],goals_frame,scroll_frame),text='add goal')
+    for e in entries:
+        e.grid_forget()
     buttons[1].grid(row=4,column=0,padx=40)
     buttons[2].grid(row=5,column=0,padx=40)
 
+"""Function to transition to updating a goal"""
 def update(buttons,name_entry):
     buttons[1].configure(command=lambda: update_goal(buttons, name_entry), text='Update')
     buttons[0].grid_forget()
     buttons[2].grid_forget()
     buttons[1].grid(row=3,column=0,padx=40)
     name_entry.grid(row=4, column=0,padx=40)
+"""Function that adds the monthly payment to a goal"""
 def update_goal(buttons,name_entry):
     name = name_entry.get()
+    goal = m.pd.read_sql_query(f"SELECT Total, Current, Monthly FROM savings_goals WHERE id = {m.user_id} AND Name = '{name}'", engine)
+    if goal.empty:
+        pass
+    else:
+        total=goal.iloc[0,0]
+        current=goal.iloc[0,1]
+        monthly=goal.iloc[0,2]
+        if current+monthly>total:
+            current=total
+        else:
+            current+=monthly
+        with engine.begin() as conn:
+            conn.execute(m.text(f"UPDATE savings SET Current = {current} WHERE id = {m.user_id} AND Name = '{name}'"))
+
     buttons[1].configure(command=lambda: update(buttons, name_entry), text='update goal')
     name_entry.grid_forget()
     buttons[0].grid(row=3,column=0,padx=40)
     buttons[1].grid(row=4, column=0,padx=40)
     buttons[2].grid(row=5, column=0,padx=40)
 
+"""Function to transition to deleting a goal"""
 def delete(buttons,name_entry):
     buttons[2].configure(command=lambda: delete_goal(buttons, name_entry), text='Delete')
     buttons[0].grid_forget()
     buttons[1].grid_forget()
     buttons[2].grid(row=3,column=0)
     name_entry.grid(row=4, column=0)
+"""Function that deletes a goal"""
 def delete_goal(buttons,name_entry):
+    name=name_entry.get()
+    with engine.begin() as conn:
+        conn.execute(m.text(f"DELETE FROM savings_goals WHERE id = {m.user_id} AND Name = '{name}'"))
+
     buttons[2].configure(command=lambda: delete(buttons, name_entry), text='delete goal')
     name_entry.grid_forget()
     buttons[0].grid(row=3,column=0,padx=40)
