@@ -107,26 +107,29 @@ def in_table(top_text,inner_frame,root):
     chart_info.grid(row=3, column=1, columnspan=3)
 
     # Savings Goals aspect of savings page
-    goals_frame=m.ctk.CTkFrame(inner_frame,width=w-10,height=600,fg_color='white')
+    goals_frame=m.ctk.CTkFrame(inner_frame,width=w-10,height=600,fg_color='#d7d7d7')
     goals_frame.pack(pady=(500,0))
     goals_frame.grid_propagate(False)
     goals_label=m.ctk.CTkLabel(goals_frame,text="MySavingsGoals",font=("Trebuchet MS", 35, 'bold'),
                                text_color='black')
     goals_label.grid(row=2,column=0,columnspan=5)
-    scroll_frame=m.ctk.CTkScrollableFrame(goals_frame,width=800,height=200)
+    scroll_frame=m.ctk.CTkScrollableFrame(goals_frame,width=900,height=200,fg_color="#bebebe")
     scroll_frame.grid(row=3,column=1,columnspan=4,rowspan=3)
-    name_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Goal Name:")
+    scroll_text=m.ctk.CTkLabel(scroll_frame,text=show_goals(),font=("Trebuchet MS", 35, 'bold'),text_color='black')
+    scroll_text.pack()
+    name_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Name:",
+                              font=("Trebuchet MS",16))
     buttons=[]
-    add_button=m.ctk.CTkButton(goals_frame,text='add goal',font=("Trebuchet MS", 25),
-                               command=lambda: add(buttons,name_entry,goals_frame,scroll_frame))
+    add_button=m.ctk.CTkButton(goals_frame,text='Add Goal',font=("Trebuchet MS", 25),width=150,height=40,
+                               command=lambda: add(buttons,name_entry,goals_frame,scroll_frame,scroll_text))
     add_button.grid(row=3,column=0,padx=40)
     buttons.append(add_button)
-    update_button=m.ctk.CTkButton(goals_frame,text='update goal',font=("Trebuchet MS", 25),
-                                  command=lambda: update(buttons,name_entry))
+    update_button=m.ctk.CTkButton(goals_frame,text='Update Goal',font=("Trebuchet MS", 25),width=150,
+                                  height=40,command=lambda: update(buttons,name_entry,scroll_text))
     update_button.grid(row=4,column=0,padx=40)
     buttons.append(update_button)
-    delete_button=m.ctk.CTkButton(goals_frame,text='delete goal',font=("Trebuchet MS", 25),
-                                  command=lambda: delete(buttons,name_entry))
+    delete_button=m.ctk.CTkButton(goals_frame,text='Delete Goal',font=("Trebuchet MS", 25),width=150,
+                                  height=40,command=lambda: delete(buttons,name_entry,scroll_text))
     delete_button.grid(row=5,column=0,padx=40)
     buttons.append(delete_button)
 
@@ -185,23 +188,24 @@ def show(chart_info,data,labels,amount):
 
 
 """Function to transition to adding a goal"""
-def add(buttons,name_entry,goals_frame,scroll_frame):
+def add(buttons,name_entry,goals_frame,scroll_frame,scroll_text):
     buttons[1].grid_forget()
     buttons[2].grid_forget()
     scroll_frame.grid(row=3,column=1,columnspan=4,rowspan=5)
     name_entry.grid(row=4,column=0,padx=40)
-    total_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Total Amount:")
+    total_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Total:",
+                               font=("Trebuchet MS", 16))
     total_entry.grid(row=5,column=0,padx=40)
-    current_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Current Amount:")
+    current_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Current:",
+                                 font=("Trebuchet MS", 16))
     current_entry.grid(row=6,column=0,padx=40)
-    monthly_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Monthly Amount:")
+    monthly_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Monthly:",
+                                 font=("Trebuchet MS", 16))
     monthly_entry.grid(row=7,column=0,padx=40)
     entries=[name_entry,total_entry,current_entry,monthly_entry]
-    buttons[0].configure(command=lambda: add_goal(buttons,goals_frame,scroll_frame,entries), text='Add')
-
-    print(m.pd.read_sql("SELECT * FROM savings_goals",engine))
+    buttons[0].configure(command=lambda: add_goal(buttons,goals_frame,scroll_frame,entries,scroll_text), text='Add')
 """Function that adds a goal"""
-def add_goal(buttons,goals_frame,scroll_frame,entries):
+def add_goal(buttons,goals_frame,scroll_frame,entries,scroll_text):
     name=entries[0].get()
     total=entries[1].get()
     current=entries[2].get()
@@ -212,21 +216,22 @@ def add_goal(buttons,goals_frame,scroll_frame,entries):
         df = m.pd.DataFrame({'id':[m.user_id],'Name':[name],'Total':[int(total)],'Current':[int(current)],'Monthly':[int(month)]})
         df.to_sql('savings_goals',engine,if_exists='append',index=False)
 
-    buttons[0].configure(command=lambda:add(buttons,entries[0],goals_frame,scroll_frame),text='add goal')
+    buttons[0].configure(command=lambda:add(buttons,entries[0],goals_frame,scroll_frame,scroll_text),text='Add Goal')
     for e in entries:
         e.grid_forget()
     buttons[1].grid(row=4,column=0,padx=40)
     buttons[2].grid(row=5,column=0,padx=40)
+    scroll_text.configure(text=show_goals())
 
 """Function to transition to updating a goal"""
-def update(buttons,name_entry):
-    buttons[1].configure(command=lambda: update_goal(buttons, name_entry), text='Update')
+def update(buttons,name_entry,scroll_text):
+    buttons[1].configure(command=lambda: update_goal(buttons, name_entry,scroll_text), text='Update')
     buttons[0].grid_forget()
     buttons[2].grid_forget()
     buttons[1].grid(row=3,column=0,padx=40)
     name_entry.grid(row=4, column=0,padx=40)
 """Function that adds the monthly payment to a goal"""
-def update_goal(buttons,name_entry):
+def update_goal(buttons,name_entry,scroll_text):
     name = name_entry.get()
     goal = m.pd.read_sql_query(f"SELECT Total, Current, Monthly FROM savings_goals WHERE id = {m.user_id} AND Name = '{name}'", engine)
     if goal.empty:
@@ -240,35 +245,49 @@ def update_goal(buttons,name_entry):
         else:
             current+=monthly
         with engine.begin() as conn:
-            conn.execute(m.text(f"UPDATE savings SET Current = {current} WHERE id = {m.user_id} AND Name = '{name}'"))
+            conn.execute(m.text(f"UPDATE savings_goals SET Current = {current} WHERE id = {m.user_id} AND Name = '{name}'"))
 
-    buttons[1].configure(command=lambda: update(buttons, name_entry), text='update goal')
+    buttons[1].configure(command=lambda: update(buttons, name_entry,scroll_text), text='Update Goal')
     name_entry.grid_forget()
     buttons[0].grid(row=3,column=0,padx=40)
     buttons[1].grid(row=4, column=0,padx=40)
     buttons[2].grid(row=5, column=0,padx=40)
+    scroll_text.configure(text=show_goals())
 
 """Function to transition to deleting a goal"""
-def delete(buttons,name_entry):
-    buttons[2].configure(command=lambda: delete_goal(buttons, name_entry), text='Delete')
+def delete(buttons,name_entry,scroll_text):
+    buttons[2].configure(command=lambda: delete_goal(buttons, name_entry,scroll_text), text='Delete')
     buttons[0].grid_forget()
     buttons[1].grid_forget()
     buttons[2].grid(row=3,column=0)
     name_entry.grid(row=4, column=0)
 """Function that deletes a goal"""
-def delete_goal(buttons,name_entry):
+def delete_goal(buttons,name_entry,scroll_text):
     name=name_entry.get()
     with engine.begin() as conn:
         conn.execute(m.text(f"DELETE FROM savings_goals WHERE id = {m.user_id} AND Name = '{name}'"))
 
-    buttons[2].configure(command=lambda: delete(buttons, name_entry), text='delete goal')
+    buttons[2].configure(command=lambda: delete(buttons, name_entry,scroll_text), text='Delete Goal')
     name_entry.grid_forget()
     buttons[0].grid(row=3,column=0,padx=40)
     buttons[1].grid(row=4, column=0,padx=40)
     buttons[2].grid(row=5, column=0,padx=40)
+    scroll_text.configure(text=show_goals())
 
+"""Function that displays all the user's savings goals"""
 def show_goals():
-    pass
+    return_string = ''
+    row_sep = "----------------------------------------------"
+    data = m.pd.read_sql(f'SELECT Name, Total, Current, Monthly FROM savings_goals WHERE id = {m.user_id}', engine).to_string(index=False).split("\n")
+    # catch for a user who has no savings goals
+    if data[0][0] == 'E':
+        return "No Savings Goals"
+    for line in data:
+        split = line.split(" ")
+        for word in split:
+            return_string += word + " "
+        return_string += "\n" + row_sep + "\n"
+    return return_string
 
 """
 Function that creates a new savings plan in the table
