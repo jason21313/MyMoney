@@ -13,16 +13,14 @@ cursor = connection.cursor()
 cursor.execute("""CREATE TABLE IF NOT EXISTS savings_budget (id INTEGER, Income INTEGER, TotalSavings INTEGER, 
                   Investments INTEGER, Retirement INTEGER, SavingsGoals INTEGER)""")
 #creates the savings goals table
-
+# cursor.execute("""CREATE TABLE IF NOT EXISTS savings_goals (id INTEGER, Name TEXT, Total INTEGER, Current INTEGER, Monthly INTEGER)""")
 connection.commit()
 connection.close()
 
 
-"""Function that creates the contents of the budget page"""
+"""Function that creates the contents of the savings page"""
 def savings(top_text,inner_frame,root):
     m.delete_contents(inner_frame)
-    w=inner_frame.winfo_width()
-    h=inner_frame.winfo_height()
     top_text.configure(text="MySavings")
     #queries tables to check if user has made a budget and or a savings budget
     has_budget=m.pd.read_sql(f"SELECT * FROM budget_new WHERE id = {m.user_id}",engine).to_string()
@@ -72,17 +70,11 @@ def savings(top_text,inner_frame,root):
     else:
         in_table(top_text,inner_frame,root)
 
-        #Savings Goals aspect of savings page
-        # goals_label=m.ctk.CTkLabel(inner_frame,text="MySavingsGoals",font=("Trebuchet MS", 35, 'bold'),
-        #                            text_color='black')
-        # goals_label.grid(row=4,column=0,columnspan=4)
-        # scroll_frame=m.ctk.CTkScrollableFrame(inner_frame,width=1200,height=400)
-        # scroll_frame.grid(row=5,column=0,columnspan=5)
-        # add_goal_button=m.ctk.CTkButton(inner_frame,text='add goal')
-        # add_goal_button.grid(row=6,column=0,columnspan=4)
 
-""""""
+"""Function that creates the content of the savings page for someone who has one"""
 def in_table(top_text,inner_frame,root):
+    w=inner_frame.winfo_width()
+    h = inner_frame.winfo_height()
     #list of categories in the savings plan
     labels=["Investments","Retirement","Savings Goals"]
     #queries the table to get the values for each category
@@ -114,6 +106,30 @@ def in_table(top_text,inner_frame,root):
                                      f"{labels[2]}: {round(int(data[0][2])/1,2)}\n")
     chart_info.grid(row=3, column=1, columnspan=3)
 
+    # Savings Goals aspect of savings page
+    goals_frame=m.ctk.CTkFrame(inner_frame,width=w-10,height=600,fg_color='white')
+    goals_frame.pack(pady=(500,0))
+    goals_frame.grid_propagate(False)
+    goals_label=m.ctk.CTkLabel(goals_frame,text="MySavingsGoals",font=("Trebuchet MS", 35, 'bold'),
+                               text_color='black')
+    goals_label.grid(row=2,column=0,columnspan=5)
+    scroll_frame=m.ctk.CTkScrollableFrame(goals_frame,width=800,height=200)
+    scroll_frame.grid(row=3,column=1,columnspan=4,rowspan=3)
+    name_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Goal Name:")
+    buttons=[]
+    add_button=m.ctk.CTkButton(goals_frame,text='add goal',font=("Trebuchet MS", 25),
+                               command=lambda: add(buttons,name_entry))
+    add_button.grid(row=3,column=0,padx=40)
+    buttons.append(add_button)
+    update_button=m.ctk.CTkButton(goals_frame,text='update goal',font=("Trebuchet MS", 25),
+                                  command=lambda: update(buttons,name_entry))
+    update_button.grid(row=4,column=0,padx=40)
+    buttons.append(update_button)
+    delete_button=m.ctk.CTkButton(goals_frame,text='delete goal',font=("Trebuchet MS", 25),
+                                  command=lambda: delete(buttons,name_entry))
+    delete_button.grid(row=5,column=0,padx=40)
+    buttons.append(delete_button)
+
 """
 Function that creates the pie chart representation 
  of the user's savings plan
@@ -128,11 +144,13 @@ def create_chart(inner_frame,root,data,labels):
     sizes=[]
     for d in data[0]:
         sizes.append(int(d))
+    #list of colors to be used in the pie chart
+    colors = ["#FF746C", "#82B2C0", "#8dcc7e"]
     #creates the pie chart in matplot
     fig, ax = plt.subplots(figsize=(7,7))
     fig.patch.set_facecolor('#d7d7d7')
     ax.pie(sizes,labels=labels,autopct='%1.1f%%',startangle=90,
-           textprops={'size':15})
+           textprops={'size':15},colors=colors)
     ax.axis('equal')
     #turns the pie chart into a ctk widget and displays it
     pie_ctk=FigureCanvasTkAgg(fig, inner_frame)
@@ -165,6 +183,47 @@ def show(chart_info,data,labels,amount):
                               f"{labels[1]}: {round(int(data[0][1])/amount,2)}\n"
                               f"{labels[2]}: {round(int(data[0][2])/amount,2)}\n")
 
+
+def add(buttons,name_entry):
+    buttons[0].configure(command=lambda:add_goal(buttons,name_entry),text='Add')
+    buttons[1].grid_forget()
+    buttons[2].grid_forget()
+    name_entry.grid(row=4,column=0,padx=40)
+def add_goal(buttons,name_entry):
+    buttons[0].configure(command=lambda:add(buttons,name_entry),text='add goal')
+    name_entry.grid_forget()
+    buttons[1].grid(row=4,column=0,padx=40)
+    buttons[2].grid(row=5,column=0,padx=40)
+
+def update(buttons,name_entry):
+    buttons[1].configure(command=lambda: update_goal(buttons, name_entry), text='Update')
+    buttons[0].grid_forget()
+    buttons[2].grid_forget()
+    buttons[1].grid(row=3,column=0,padx=40)
+    name_entry.grid(row=4, column=0,padx=40)
+def update_goal(buttons,name_entry):
+    name = name_entry.get()
+    buttons[1].configure(command=lambda: update(buttons, name_entry), text='update goal')
+    name_entry.grid_forget()
+    buttons[0].grid(row=3,column=0,padx=40)
+    buttons[1].grid(row=4, column=0,padx=40)
+    buttons[2].grid(row=5, column=0,padx=40)
+
+def delete(buttons,name_entry):
+    buttons[2].configure(command=lambda: delete_goal(buttons, name_entry), text='Delete')
+    buttons[0].grid_forget()
+    buttons[1].grid_forget()
+    buttons[2].grid(row=3,column=0)
+    name_entry.grid(row=4, column=0)
+def delete_goal(buttons,name_entry):
+    buttons[2].configure(command=lambda: delete(buttons, name_entry), text='delete goal')
+    name_entry.grid_forget()
+    buttons[0].grid(row=3,column=0,padx=40)
+    buttons[1].grid(row=4, column=0,padx=40)
+    buttons[2].grid(row=5, column=0,padx=40)
+
+def show_goals():
+    pass
 
 """
 Function that creates a new savings plan in the table
