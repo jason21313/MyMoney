@@ -3,6 +3,7 @@ from sections_files.payments_functions import *
 from sections_files.budget_functions import *
 from sections_files.savings_functions import *
 from sections_files.misc_functions import *
+from sections_files.tracking_functions import *
 
 """Function that creates the initial section of the main page of the app"""
 def create_main(root):
