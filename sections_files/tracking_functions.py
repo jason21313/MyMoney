@@ -29,15 +29,15 @@ def tracking(top_text,inner_frame):
         add_account_button.configure(text="Create Account",command=lambda: add_first(top_text, inner_frame, guide_text, add_account_button))
         add_account_button.grid(row=2, column=0, padx=400, pady=10)
     else:
-        guide_text.grid(row=0, column=0, columnspan=2, padx=400, pady=10)
+        guide_text.grid(row=0, column=0, columnspan=4, padx=400, pady=10)
         accounts_frame = m.ctk.CTkScrollableFrame(inner_frame, width=800, height=400)
-        accounts_frame.grid(row=1, column=0, columnspan=2,pady=5)
+        accounts_frame.grid(row=1, column=0, columnspan=4,pady=5)
         create_accounts(top_text,inner_frame,accounts_frame)
         add_account_button.configure(command=lambda: add_new(top_text, inner_frame,add_account_button))
-        add_account_button.grid(row=2, column=0,pady=10)
+        add_account_button.grid(row=2, column=1,pady=10)
         delete_account_button = m.ctk.CTkButton(inner_frame, text='Delete',font=("Trebuchet MS", 35),width=250,height=60,
                                                 command=lambda: delete_account(top_text, inner_frame, delete_account_button))
-        delete_account_button.grid(row=2, column=1,pady=10)
+        delete_account_button.grid(row=2, column=2,pady=10)
 
 def add_first(top_text,inner_frame,guide_text,add_account_button):
     guide_text.configure(text="Please Enter a Name and Total\n To create an Account")
@@ -86,14 +86,99 @@ def create_accounts(top_text,inner_frame,accounts_frame):
 
 def tracking_table(top_text,inner_frame,account_name):
     m.delete_contents(inner_frame)
+    data = m.pd.read_sql_query(f"SELECT Name,Date,Category,Payee,Amount,Total FROM tracking_new WHERE id = {m.user_id}",
+                               engine).to_numpy()
     account_text=m.ctk.CTkLabel(inner_frame,text=account_name,font=("Trebuchet MS", 35,'bold'),text_color="black")
-    account_text.grid(row=0,column=0,columnspan=3,padx=100,pady=(20,10))
-    tracking_frame=m.ctk.CTkScrollableFrame(inner_frame, width=1000, height=550)
+    account_text.grid(row=0,column=0,columnspan=3,padx=100,pady=(20,5))
+    tracking_frame=m.ctk.CTkScrollableFrame(inner_frame, width=1000, height=500)
     tracking_frame.grid(row=1,column=0,columnspan=3,padx=50,pady=10)
-    submit_button=m.ctk.CTkButton(inner_frame,text="Submit",font=("Trebuchet MS", 35))
-    submit_button.grid(row=2,column=0)
-    delete_button=m.ctk.CTkButton(inner_frame,text="Delete",font=("Trebuchet MS", 35))
-    delete_button.grid(row=2,column=1)
+    #
+    tracking_input_frame=m.ctk.CTkFrame(inner_frame, width=1000, height=70)
+    tracking_input_frame.grid(row=2,column=0,columnspan=3,padx=50,pady=10)
+    tracking_input_frame.grid_propagate(False)
+    date_track=m.ctk.CTkEntry(tracking_input_frame,placeholder_text=m.datetime.date.today().strftime("%m/%d/%Y"),height=40,)
+    date_track.grid(row=0,column=1,pady=10,padx=10)
+    cat_track=m.ctk.CTkOptionMenu(tracking_input_frame,height=40,values=['Enter Category',"Income","Housing","Transportation","Bills",
+                                                                         "Education","Health and Wellness","Food","Savings","Kids",
+                                                                         "Entertainment","Shopping","Pets","Travel","Gifts","Misc"])
+    cat_track.grid(row=0,column=2,pady=10,padx=10)
+    payee_track=m.ctk.CTkEntry(tracking_input_frame,placeholder_text="Enter Payee:",height=40,)
+    payee_track.grid(row=0,column=3,pady=10,padx=10)
+    deposit_track=m.ctk.CTkEntry(tracking_input_frame,placeholder_text="Enter Deposit:",height=40,)
+    deposit_track.grid(row=0,column=4,pady=10,padx=10)
+    withdrawal_track=m.ctk.CTkEntry(tracking_input_frame,placeholder_text="Enter Withdrawal:",height=40,)
+    withdrawal_track.grid(row=0,column=5,pady=10,padx=10)
+    entries=[date_track,cat_track,payee_track,deposit_track,withdrawal_track]
+    #
+    submit_button=m.ctk.CTkButton(inner_frame,text="Submit",font=("Trebuchet MS", 35),width=250,
+                                  command=lambda: add_track(top_text,inner_frame,account_name,entries,data))
+    submit_button.grid(row=3,column=0)
+    delete_button=m.ctk.CTkButton(inner_frame,text="Delete",font=("Trebuchet MS", 35),width=250,
+                                  command=lambda: del_track(top_text,inner_frame,account_name,entries))
+    delete_button.grid(row=3,column=1)
     back_button=m.ctk.CTkButton(inner_frame,text="Back to Accounts",font=("Trebuchet MS", 35),
-                                command=lambda: tracking(top_text,inner_frame))
-    back_button.grid(row=2,column=2)
+                                width=250,command=lambda: tracking(top_text,inner_frame))
+    back_button.grid(row=3,column=2)
+    show_table(tracking_frame,data)
+
+def add_track(top_text,inner_frame,account_name,entries,data):
+    if entries[0].get() == "":
+        date = m.datetime.date.today().strftime("%m/%d/%Y")
+    else:
+        date = entries[0].get()
+
+    if entries[2].get()=="" or entries[1].get()=="Enter Category":
+        tracking_table(top_text, inner_frame, account_name)
+    elif entries[3].get() == "" and entries[4].get() == "":
+        tracking_table(top_text, inner_frame, account_name)
+    else:
+        if entries[3].get()=="":
+            #withdrawal
+            df=m.pd.DataFrame({"id":[m.user_id],"Name":[account_name],"Date":[date],"Category":[entries[1].get()],
+                               "Payee":[entries[2].get()],"Amount":[-int(entries[4].get())],"Total":[data[-1][5]-int(entries[4].get())]})
+            df.to_sql("tracking_new",con=engine,if_exists="append",index=False)
+            tracking_table(top_text,inner_frame,account_name)
+        elif entries[4].get()=="":
+            #deposit
+            df = m.pd.DataFrame({"id": [m.user_id], "Name": [account_name], "Date": [date],"Category": [entries[1].get()],
+                                 "Payee": [entries[2].get()], "Amount": [int(entries[3].get())],"Total":[data[-1][5]+int(entries[3].get())]})
+            df.to_sql("tracking_new", con=engine, if_exists="append", index=False)
+            tracking_table(top_text,inner_frame,account_name)
+
+
+def del_track(top_text,inner_frame,account_name,entries):
+    if entries[0].get() == "":
+        date = m.datetime.date.today().strftime("%m/%d/%Y")
+    else:
+        date = entries[0].get()
+    with engine.begin() as con:
+        con.execute(m.text(f"DELETE FROM tracking_new WHERE id = {m.user_id} AND Name='{account_name}' AND Date = '{date}' AND Category='{entries[1].get()}' AND Payee='{entries[2].get()}'",))
+    tracking_table(top_text,inner_frame,account_name)
+
+def show_table(tracking_frame,data):
+    tracking_label = m.ctk.CTkLabel(tracking_frame,text='',font=("Consolas", 25),text_color="white")
+    string=''
+    cats={  "Income": "       Income      ",
+    "Housing": "      Housing     ",
+    "Transportation": " Transportation",
+    "Bills": "       Bills       ",
+    "Education": "     Education    ",
+    "Health and Wellness": "Health and Wellness",
+    "Food": "        Food       ",
+    "Savings": "      Savings     ",
+    "Kids": "        Kids       ",
+    "Entertainment": "  Entertainment  ",
+    "Shopping": "     Shopping     ",
+    "Pets": "        Pets       ",
+    "Travel": "       Travel      ",
+    "Gifts": "       Gifts       ",
+    "Misc": "        Misc       "}
+    for d in data:
+        if d[4]==0:
+            pass
+        elif d[4]>0:
+            string += d[1] +" | " + cats[d[2]] + " | " + str(d[3]) + " | " + str(d[4]) + " |    | " + str(d[5]) + "\n"
+        else:
+            string += d[1]+" | "+cats[d[2]]+" | "+str(d[3])+" |    | "+str(abs(d[4]))+" | "+str(d[5])+"\n"
+    tracking_label.configure(text=string)
+    tracking_label.pack(anchor='w')
