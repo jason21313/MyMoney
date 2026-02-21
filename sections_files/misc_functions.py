@@ -11,6 +11,9 @@ user_id=0
 
 """deletes all the contents of the inputted ctk element"""
 def delete_contents(element):
+    for i in range(10):
+        element.grid_columnconfigure(i, weight=0)
+        element.grid_rowconfigure(i, weight=0)
     for element in element.winfo_children():
         element.destroy()
 
