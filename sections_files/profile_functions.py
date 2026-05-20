@@ -9,23 +9,30 @@ dob="01/01/2000"
 def profile(top_text,inner_frame,root):
     m.delete_contents(inner_frame)
     top_text.configure(text="MyProfile")
-    first_name=m.ctk.CTkLabel(inner_frame,text=f"First Name: {first[0].upper()}{first[1:]} ",font=("Trebuchet MS",30),text_color="black")
-    first_name.grid(row=0,column=0,pady=100,padx=50)
-    last_name=m.ctk.CTkLabel(inner_frame,text=f"Last Name: {last[0].upper()}{last[1:]} ",font=("Trebuchet MS",30),text_color="black")
-    last_name.grid(row=0,column=2,pady=100,padx=50)
-    email_text=m.ctk.CTkLabel(inner_frame,text=f"Email: {email} ",font=("Trebuchet MS",30),text_color="black")
-    email_text.grid(row=1,column=0,pady=50,padx=50)
-    dob_text=m.ctk.CTkLabel(inner_frame,text=f"Date of Birth: {dob} ",font=("Trebuchet MS",30),text_color="black")
-    dob_text.grid(row=1,column=2,pady=50,padx=50)
-    edit_profile_button=m.ctk.CTkButton(inner_frame,text="Click to Edit Profile",font=("Trebuchet MS",30),
-                                      command=lambda: edit_profile(top_text,inner_frame,root),width=125,height=40)
-    edit_profile_button.grid(row=2,column=0,pady=(50,0),padx=50)
-    logout_button=m.ctk.CTkButton(inner_frame,text="Press to Logout", width=125,height=40,
-                                font=("Trebuchet MS",30),command=lambda: logout(root))
-    logout_button.grid(row=2,column=2,pady=(50,0),padx=50)
-    delete_account_button = m.ctk.CTkButton(inner_frame, text="Delete Account", font=("Trebuchet MS", 25),width=123,height=40,hover_color="#420D09",
-                                          fg_color="#960019", command=lambda: delete_safeguard(delete_account_button,inner_frame,root))
-    delete_account_button.grid(row=3,column=1,pady=(0,5),padx=50)
+    w = inner_frame.winfo_width()
+    h = inner_frame.winfo_height()
+    text_frame = m.ctk.CTkFrame(inner_frame, width=w//2.5, height=h-425,fg_color="#bebebe")
+    text_frame.grid_propagate(False)
+    text_frame.grid(row=0,column=0,rowspan=6,pady=15,padx=(40,25))
+    info_text=m.ctk.CTkLabel(text_frame,text="MyInfo",font=("Trebuchet MS",45,"bold","underline"),text_color="black")
+    info_text.grid(row=0,column=0,padx=100,pady=(25,0),columnspan=2)
+    first_name=m.ctk.CTkLabel(text_frame,text=f"First Name:    {first[0].upper()}{first[1:]}",font=("Trebuchet MS",40,"bold"),text_color="black")
+    first_name.grid(row=1,column=0,pady=(75,0),padx=75,sticky='w')
+    last_name=m.ctk.CTkLabel(text_frame,text=f"Last Name:   {last[0].upper()}{last[1:]} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    last_name.grid(row=2,column=0,pady=(100,0),padx=75,sticky='w')
+    email_text=m.ctk.CTkLabel(text_frame,text=f"Email:   {email} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    email_text.grid(row=3,column=0,pady=(100,0),padx=75,sticky='w')
+    dob_text=m.ctk.CTkLabel(text_frame,text=f"Date of Birth:   {dob} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    dob_text.grid(row=4,column=0,pady=(100,0),padx=75,sticky='w')
+    edit_profile_button=m.ctk.CTkButton(inner_frame,text="Edit Profile",font=("Trebuchet MS",35),
+                                      command=lambda: edit_profile(top_text,inner_frame,root),width=250,height=70)
+    edit_profile_button.grid(row=0,column=1,pady=(50,0),padx=50)
+    logout_button=m.ctk.CTkButton(inner_frame,text="Press to Logout", width=250,height=70,
+                                font=("Trebuchet MS",35),command=lambda: logout(root))
+    logout_button.grid(row=2,column=1,pady=(25,0),padx=50)
+    delete_account_button = m.ctk.CTkButton(inner_frame, text="Delete Account", font=("Trebuchet MS", 35),width=250,height=70,hover_color="#420D09",
+                                          fg_color="#960019", command=lambda: delete_safeguard(delete_account_button,logout_button,inner_frame,root))
+    delete_account_button.grid(row=4,column=1,pady=(25,0),padx=50)
 
 """Function that creates entries so the user can update/change their personal info"""
 def edit_profile(top_text,inner_frame,root):
@@ -68,14 +75,16 @@ def save_changes(new_first_name,new_last_name,new_email,new_dob,top_text,inner_f
     profile(top_text,inner_frame,root)
 
 """Function that forces the user to enter their password to delete account"""
-def delete_safeguard(delete_account_button,inner_frame,root):
+def delete_safeguard(delete_account_button,logout_button,inner_frame,root):
+    logout_button.grid(row=1,column=1,pady=(25,0),padx=50)
     delete_account_button.configure(state="disabled")
+    delete_account_button.grid(row=2,column=1,pady=(25,0),padx=50)
     password_entry=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Password:",
-                                font=("Trebuchet MS",15),width=175,height=40)
-    password_entry.grid(row=4,column=1,pady=5,padx=0)
-    actually_delete_button=m.ctk.CTkButton(inner_frame,text="Actually Delete Account",font=("Trebuchet MS",18),fg_color="#960019",
+                                font=("Trebuchet MS",25),width=250,height=50)
+    password_entry.grid(row=3,column=1,pady=0,padx=0)
+    actually_delete_button=m.ctk.CTkButton(inner_frame,text="Actually Delete Account",font=("Trebuchet MS",25),fg_color="#960019",width=250,height=50,
                                          hover_color="#420D09",command=lambda: delete_account(password_entry.get().strip(),inner_frame,root))
-    actually_delete_button.grid(row=5,column=1,pady=5,padx=0)
+    actually_delete_button.grid(row=4,column=1,pady=0,padx=0)
 
 """Function that deletes the user from the database and then logs the user out"""
 def delete_account(password,inner_frame,root):
@@ -83,7 +92,7 @@ def delete_account(password,inner_frame,root):
         logout(root)
     else:
         error=m.ctk.CTkLabel(inner_frame,text="Incorrect Password",font=("Trebuchet MS",25),text_color="red")
-        error.grid(row=6,column=1,pady=0)
+        error.grid(row=5,column=1,pady=0)
         root.after(4000,error.destroy)
 
 """Function that logs the user out and then tells them to close the app"""
