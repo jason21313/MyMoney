@@ -31,10 +31,3 @@ def create_user_id(username,password):
 
 
 
-"""Function that creates the contents of the home page"""
-def home(top_text,inner_frame):
-    delete_contents(inner_frame)
-    top_text.configure(text="MyHome")
-
-
-

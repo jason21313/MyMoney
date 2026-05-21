@@ -83,7 +83,7 @@ def in_table(top_text,inner_frame,root):
     # Savings Plan aspect of the savings page
     savings_label = m.ctk.CTkLabel(inner_frame, text="MyPlan", text_color="black",
                                    font=("Trebuchet MS", 35, 'bold'))
-    savings_label.grid(row=0, column=0, columnspan=4)
+    savings_label.grid(row=0, column=0, columnspan=4,padx=25)
     #creates the pie chart
     create_chart(inner_frame,root,data,labels)
     # buttons to display number amounts of savings per time periods
@@ -122,15 +122,15 @@ def in_table(top_text,inner_frame,root):
     buttons=[]
     add_button=m.ctk.CTkButton(goals_frame,text='Add Goal',font=("Trebuchet MS", 25),width=150,height=40,
                                command=lambda: add(buttons,name_entry,goals_frame,scroll_frame,scroll_text))
-    add_button.grid(row=3,column=0,padx=40)
+    add_button.grid(row=3,column=0,padx=(100,40))
     buttons.append(add_button)
     update_button=m.ctk.CTkButton(goals_frame,text='Update Goal',font=("Trebuchet MS", 25),width=150,
                                   height=40,command=lambda: update(buttons,name_entry,scroll_text))
-    update_button.grid(row=4,column=0,padx=40)
+    update_button.grid(row=4,column=0,padx=(100,40))
     buttons.append(update_button)
     delete_button=m.ctk.CTkButton(goals_frame,text='Delete Goal',font=("Trebuchet MS", 25),width=150,
                                   height=40,command=lambda: delete(buttons,name_entry,scroll_text))
-    delete_button.grid(row=5,column=0,padx=40)
+    delete_button.grid(row=5,column=0,padx=(100,40))
     buttons.append(delete_button)
 
 """
@@ -158,7 +158,7 @@ def create_chart(inner_frame,root,data,labels):
     #turns the pie chart into a ctk widget and displays it
     pie_ctk=FigureCanvasTkAgg(fig, inner_frame)
     pie_ctk.draw()
-    pie_ctk.get_tk_widget().grid(row=1,column=0,rowspan=4,padx=(30,40))
+    pie_ctk.get_tk_widget().grid(row=1,column=0,rowspan=4,padx=(70,40))
     # prevents a matplot bug on program close
     root.protocol("WM_DELETE_WINDOW", plt.close("all"))
 

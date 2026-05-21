@@ -15,51 +15,38 @@ connection.close()
 
 """Function that creates the contents of the tracking page"""
 def tracking(top_text,inner_frame):
-    data = m.pd.read_sql_query(f"SELECT Name,Date,Category,Payee,Amount,Total FROM tracking_new WHERE id = {m.user_id}", engine).to_string()
     m.delete_contents(inner_frame)
     top_text.configure(text="MyTracking")
     guide_text = m.ctk.CTkLabel(inner_frame, text="Please Select an Account",text_color='black',
                                 font=("Trebuchet MS", 35,'bold'))
     add_account_button = m.ctk.CTkButton(inner_frame, text='Add',font=("Trebuchet MS", 35),
                                          width=250,height=60)
-    #checks to see if user has any accounts or not
-    if data[0][0]=="E":
-        #if not it prompts them to create an account
-        guide_text.configure(text="Please Enter a Name and Total\n To create an Account")
-        guide_text.grid(row=0, column=0)
-        name_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name:", height=40,
+    #creates the account selection screen
+    guide_text.grid(row=0, column=0, columnspan=2, padx=400, pady=10)
+    accounts_frame = m.ctk.CTkScrollableFrame(inner_frame, width=800, height=600)
+    accounts_frame.grid(row=1,column=0,rowspan=5,pady=5,padx=100)
+    create_accounts(top_text,inner_frame,accounts_frame)
+    #functionality to add and delete accounts
+    name_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name:", height=40,
                                     width=250, font=("Trebuchet MS", 25))
-        name_entry.grid(row=1, column=0, padx=400, pady=10)
-        total_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Total:", height=40,
+    total_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Total:", height=40,
                                      width=250, font=("Trebuchet MS", 25))
-        total_entry.grid(row=2, column=0, padx=400, pady=10)
-        add_account_button.grid(row=3, column=0, padx=400, pady=10)
-        add_account_button.configure(
-            command=lambda: add_account(top_text, inner_frame, name_entry.get(), total_entry.get()))
-    else:
-        #otherwise brings a user to an account selection screen
-        guide_text.grid(row=0, column=0, columnspan=5, padx=400, pady=10)
-        accounts_frame = m.ctk.CTkScrollableFrame(inner_frame, width=800, height=400)
-        accounts_frame.grid(row=1, column=0, columnspan=5,pady=5)
-        create_accounts(top_text,inner_frame,accounts_frame)
-        #functionality to add and delete accounts
-        name_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Name:", height=40,
-                                    width=250, font=("Trebuchet MS", 25))
-        total_entry = m.ctk.CTkEntry(inner_frame, placeholder_text="Enter Total:", height=40,
-                                     width=250, font=("Trebuchet MS", 25))
-        add_account_button.configure(command=lambda: add_new(top_text, inner_frame,add_account_button,name_entry,total_entry))
-        add_account_button.grid(row=2, column=1,pady=10)
-        cancel_button = m.ctk.CTkButton(inner_frame, text='Cancel', font=("Trebuchet MS",35),width=250,height=60,
-                                        command=lambda: cancel(top_text,inner_frame,name_entry,total_entry,add_account_button,delete_account_button))
-        cancel_button.grid(row=2, column=2,pady=10)
-        delete_account_button = m.ctk.CTkButton(inner_frame, text='Delete',font=("Trebuchet MS", 35),width=250,height=60,
+    add_account_button.configure(command=lambda: add_new(top_text, inner_frame,add_account_button,name_entry,total_entry,cancel_button,delete_account_button))
+    add_account_button.grid(row=2, column=1,pady=10)
+    cancel_button = m.ctk.CTkButton(inner_frame, text='Cancel', font=("Trebuchet MS",35),width=250,height=60,
+                                        command=lambda: cancel(top_text,inner_frame,name_entry,total_entry,add_account_button,cancel_button,delete_account_button))
+    cancel_button.grid(row=3, column=1,pady=10)
+    delete_account_button = m.ctk.CTkButton(inner_frame, text='Delete',font=("Trebuchet MS", 35),width=250,height=60,
                                                 command=lambda: delete_account(top_text, inner_frame, delete_account_button,name_entry))
-        delete_account_button.grid(row=2, column=3,pady=10)
+    delete_account_button.grid(row=4, column=1,pady=10)
 
 """Function that gives user ability to create new account"""
-def add_new(top_text,inner_frame,add_account_button,name_entry,total_entry):
-    name_entry.grid(row=3, column=1)
-    total_entry.grid(row=3, column=3)
+def add_new(top_text,inner_frame,add_account_button,name_entry,total_entry,cancel_button,delete_account_button):
+    add_account_button.grid(row=1,column=1,pady=10)
+    name_entry.grid(row=2, column=1)
+    total_entry.grid(row=3, column=1)
+    cancel_button.grid(row=4,column=1,pady=10)
+    delete_account_button.grid(row=5,column=1,pady=10)
     add_account_button.configure(
         command=lambda: add_account(top_text, inner_frame, name_entry.get(), total_entry.get()))
 
@@ -71,7 +58,7 @@ def add_account(top_text,inner_frame,name,total):
 
 """Function that gives user ability to delete an account"""
 def delete_account(top_text,inner_frame,delete_account_button,name_entry):
-    name_entry.grid(row=3, column=1,columnspan=3)
+    name_entry.grid(row=5, column=1)
     delete_account_button.configure(
         command=lambda: delete(top_text, inner_frame, name_entry.get()))
 
@@ -82,20 +69,27 @@ def delete(top_text,inner_frame,name):
     tracking(top_text,inner_frame)
 
 """Function to reset account selecting screen"""
-def cancel(top_text,inner_frame,name_entry,total_entry,add_account_button,delete_account_button):
+def cancel(top_text,inner_frame,name_entry,total_entry,add_account_button,cancel_button,delete_account_button):
     name_entry.grid_forget()
     total_entry.grid_forget()
-    add_account_button.configure(command=lambda: add_new(top_text, inner_frame,add_account_button,name_entry,total_entry))
+    add_account_button.grid(row=2,column=1,pady=10)
+    cancel_button.grid(row=3,column=1,pady=10)
+    delete_account_button.grid(row=4,column=1,pady=10)
+    add_account_button.configure(command=lambda: add_new(top_text, inner_frame,add_account_button,name_entry,total_entry,cancel_button,delete_account_button))
     delete_account_button.configure(command=lambda: delete_account(top_text, inner_frame, delete_account_button,name_entry))
 
 """Function that displays all the user's accounts"""
 def create_accounts(top_text,inner_frame,accounts_frame):
     data=m.pd.read_sql(F"SELECT DISTINCT Name FROM tracking_new WHERE id = {m.user_id}", engine).to_numpy()
-    for d in data:
-        name=d[0]
-        account_button=m.ctk.CTkButton(accounts_frame, text=name,font=("Trebuchet MS",35),height=60,
+    if data.size==0:
+        label = m.ctk.CTkLabel(accounts_frame,text="You have No Accounts Created",font=("Trebuchet MS",40,"bold"),text_color="white")
+        label.pack(pady=100)
+    else:
+        for d in data:
+            name=d[0]
+            account_button=m.ctk.CTkButton(accounts_frame, text=name,font=("Trebuchet MS",35),height=60,
                                        width=250,command=lambda: tracking_table(top_text,inner_frame, name))
-        account_button.pack(pady=10)
+            account_button.pack(pady=10)
 
 """
 Function that displays the tracking of an account
@@ -106,12 +100,12 @@ def tracking_table(top_text,inner_frame,account_name):
     data = m.pd.read_sql_query(f"SELECT Name,Date,Category,Payee,Amount,Total FROM tracking_new WHERE id = {m.user_id}",
                                engine).to_numpy()
     account_text=m.ctk.CTkLabel(inner_frame,text=account_name,font=("Trebuchet MS", 35,'bold'),text_color="black")
-    account_text.grid(row=0,column=0,columnspan=3,padx=100,pady=(20,5))
+    account_text.grid(row=0,column=0,columnspan=5,pady=(20,5))
     tracking_frame=m.ctk.CTkScrollableFrame(inner_frame, width=1000, height=500)
-    tracking_frame.grid(row=1,column=0,columnspan=3,padx=50,pady=10)
+    tracking_frame.grid(row=1,column=0,columnspan=5,padx=150,pady=10)
     #inputs to enter the information for the tracked changes
     tracking_input_frame=m.ctk.CTkFrame(inner_frame, width=1000, height=70)
-    tracking_input_frame.grid(row=2,column=0,columnspan=3,padx=50,pady=10)
+    tracking_input_frame.grid(row=2,column=0,columnspan=5,padx=50,pady=10)
     tracking_input_frame.grid_propagate(False)
     date_track=m.ctk.CTkEntry(tracking_input_frame,placeholder_text=m.datetime.date.today().strftime("%m/%d/%Y"),height=40,)
     date_track.grid(row=0,column=1,pady=10,padx=10)
@@ -129,13 +123,13 @@ def tracking_table(top_text,inner_frame,account_name):
     #buttons to add or delete based on the inputs, also allows user to return to accounts page
     submit_button=m.ctk.CTkButton(inner_frame,text="Submit",font=("Trebuchet MS", 35),width=250,
                                   command=lambda: add_track(top_text,inner_frame,account_name,entries,data))
-    submit_button.grid(row=3,column=0)
+    submit_button.grid(row=3,column=1)
     delete_button=m.ctk.CTkButton(inner_frame,text="Delete",font=("Trebuchet MS", 35),width=250,
                                   command=lambda: del_track(top_text,inner_frame,account_name,entries))
-    delete_button.grid(row=3,column=1)
+    delete_button.grid(row=3,column=2)
     back_button=m.ctk.CTkButton(inner_frame,text="Back to Accounts",font=("Trebuchet MS", 35),
                                 width=250,command=lambda: tracking(top_text,inner_frame))
-    back_button.grid(row=3,column=2)
+    back_button.grid(row=3,column=3)
     show_table(tracking_frame,data)
 
 """Function that adds a tracked change to the table"""

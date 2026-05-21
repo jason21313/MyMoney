@@ -20,7 +20,7 @@ def create_main(root):
     top_frame=ctk.CTkFrame(outer_frame,fg_color="#d7d7d7", width=w-170, height=50)
     top_frame.pack_propagate(False)
     top_frame.grid(row=0,column=0,columnspan=2,padx=60,pady=20)
-    top_text=ctk.CTkLabel(top_frame,text=f"Welcome Back {first[0].upper()}{first[1:]}",text_color='black',font=("Trebuchet MS",25,"bold"))
+    top_text=ctk.CTkLabel(top_frame,text="",text_color='black',font=("Trebuchet MS",25,"bold"))
     top_text.pack(pady=10,anchor='n')
     top_frame.pack_propagate(False)
     img=Image.open("transparent.png")
@@ -30,7 +30,7 @@ def create_main(root):
 
     #buttons for each section of the website
     home_b=ctk.CTkButton(outer_frame,text='Home',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
-                         font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7', command=lambda: home(top_text,inner_frame))
+                         font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7', command=lambda: home(root,top_text,inner_frame,False))
     budget_b = ctk.CTkButton(outer_frame, text='Budget',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
                              font=("Trebuchet MS",25,"bold"),text_color='#d7d7d7',command=lambda: budget(top_text,inner_frame,root))
     savings_b = ctk.CTkButton(outer_frame, text='Savings',height=75,fg_color="#6C3BAA",hover_color="#7851A9",
@@ -53,6 +53,28 @@ def create_main(root):
     inner_frame.grid(row=1,rowspan=7,column=1,sticky='nw',pady=20)
     inner_frame.pack_propagate(False)
     inner_frame.grid_propagate(False)
+    home(root,top_text,inner_frame,True)
+
+"""Function that creates the contents of the home page"""
+def home(root,top_text,inner_frame,starting):
+    delete_contents(inner_frame)
+    top_text.configure(text="MyHome")
+    if not starting:
+        now = m.datetime.datetime.now().strftime("%H")
+        if 0 <= int(now) <= 12:
+            greeting=f"Good Morning {first[0].upper()}{first[1:]}"
+        elif 12 <= int(now) <= 18:
+            greeting=f"Good Afternoon {first[0].upper()}{first[1:]}"
+        else:
+            greeting=f"Good Evening {first[0].upper()}{first[1:]}"
+    else:
+        greeting=f"Welcome Back {first[0].upper()}{first[1:]}"
+    greeting_label=m.ctk.CTkLabel(inner_frame,text=greeting,text_color='black',font=("Trebuchet MS",25,"bold"))
+    greeting_label.pack()
+    logout_button = m.ctk.CTkButton(inner_frame,text="Logout",font=("Trebuchet MS",25),command=lambda: logout(root))
+    logout_button.pack()
+
+
 
 #temp stuff to skip login process for developmental purposes
 # r= ctk.CTk()
