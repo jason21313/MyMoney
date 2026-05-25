@@ -192,16 +192,16 @@ def add(buttons,name_entry,goals_frame,scroll_frame,scroll_text):
     buttons[1].grid_forget()
     buttons[2].grid_forget()
     scroll_frame.grid(row=3,column=1,columnspan=4,rowspan=5)
-    name_entry.grid(row=4,column=0,padx=40)
+    name_entry.grid(row=4,column=0,padx=(100,40))
     total_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Total:",
                                font=("Trebuchet MS", 16))
-    total_entry.grid(row=5,column=0,padx=40)
+    total_entry.grid(row=5,column=0,padx=(100,40))
     current_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Current:",
                                  font=("Trebuchet MS", 16))
-    current_entry.grid(row=6,column=0,padx=40)
+    current_entry.grid(row=6,column=0,padx=(100,40))
     monthly_entry=m.ctk.CTkEntry(goals_frame,placeholder_text="Enter Monthly:",
                                  font=("Trebuchet MS", 16))
-    monthly_entry.grid(row=7,column=0,padx=40)
+    monthly_entry.grid(row=7,column=0,padx=(100,40))
     entries=[name_entry,total_entry,current_entry,monthly_entry]
     buttons[0].configure(command=lambda: add_goal(buttons,goals_frame,scroll_frame,entries,scroll_text), text='Add')
 """Function that adds a goal"""
@@ -219,8 +219,8 @@ def add_goal(buttons,goals_frame,scroll_frame,entries,scroll_text):
     buttons[0].configure(command=lambda:add(buttons,entries[0],goals_frame,scroll_frame,scroll_text),text='Add Goal')
     for e in entries:
         e.grid_forget()
-    buttons[1].grid(row=4,column=0,padx=40)
-    buttons[2].grid(row=5,column=0,padx=40)
+    buttons[1].grid(row=4,column=0,padx=(100,40))
+    buttons[2].grid(row=5,column=0,padx=(100,40))
     scroll_text.configure(text=show_goals())
 
 """Function to transition to updating a goal"""
@@ -228,8 +228,8 @@ def update(buttons,name_entry,scroll_text):
     buttons[1].configure(command=lambda: update_goal(buttons, name_entry,scroll_text), text='Update')
     buttons[0].grid_forget()
     buttons[2].grid_forget()
-    buttons[1].grid(row=3,column=0,padx=40)
-    name_entry.grid(row=4, column=0,padx=40)
+    buttons[1].grid(row=3,column=0,padx=(100,40))
+    name_entry.grid(row=4, column=0,padx=(100,40))
 """Function that adds the monthly payment to a goal"""
 def update_goal(buttons,name_entry,scroll_text):
     name = name_entry.get()
@@ -249,9 +249,9 @@ def update_goal(buttons,name_entry,scroll_text):
 
     buttons[1].configure(command=lambda: update(buttons, name_entry,scroll_text), text='Update Goal')
     name_entry.grid_forget()
-    buttons[0].grid(row=3,column=0,padx=40)
-    buttons[1].grid(row=4, column=0,padx=40)
-    buttons[2].grid(row=5, column=0,padx=40)
+    buttons[0].grid(row=3,column=0,padx=(100,40))
+    buttons[1].grid(row=4, column=0,padx=(100,40))
+    buttons[2].grid(row=5, column=0,padx=(100,40))
     scroll_text.configure(text=show_goals())
 
 """Function to transition to deleting a goal"""
@@ -259,8 +259,8 @@ def delete(buttons,name_entry,scroll_text):
     buttons[2].configure(command=lambda: delete_goal(buttons, name_entry,scroll_text), text='Delete')
     buttons[0].grid_forget()
     buttons[1].grid_forget()
-    buttons[2].grid(row=3,column=0)
-    name_entry.grid(row=4, column=0)
+    buttons[2].grid(row=3,column=0,padx=(100,40))
+    name_entry.grid(row=4, column=0,padx=(100,40))
 """Function that deletes a goal"""
 def delete_goal(buttons,name_entry,scroll_text):
     name=name_entry.get()
@@ -269,9 +269,9 @@ def delete_goal(buttons,name_entry,scroll_text):
 
     buttons[2].configure(command=lambda: delete(buttons, name_entry,scroll_text), text='Delete Goal')
     name_entry.grid_forget()
-    buttons[0].grid(row=3,column=0,padx=40)
-    buttons[1].grid(row=4, column=0,padx=40)
-    buttons[2].grid(row=5, column=0,padx=40)
+    buttons[0].grid(row=3,column=0,padx=(100,40))
+    buttons[1].grid(row=4, column=0,padx=(100,40))
+    buttons[2].grid(row=5, column=0,padx=(100,40))
     scroll_text.configure(text=show_goals())
 
 """Function that displays all the user's savings goals"""

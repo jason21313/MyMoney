@@ -1,9 +1,13 @@
+import random
+
 from sections_files.profile_functions import *
 from sections_files.payments_functions import *
 from sections_files.budget_functions import *
 from sections_files.savings_functions import *
 from sections_files.misc_functions import *
 from sections_files.tracking_functions import *
+
+engine = m.create_engine('sqlite:///user_database.db')
 
 """Function that creates the initial section of the main page of the app"""
 def create_main(root):
@@ -70,9 +74,136 @@ def home(root,top_text,inner_frame,starting):
     else:
         greeting=f"Welcome Back {first[0].upper()}{first[1:]}"
     greeting_label=m.ctk.CTkLabel(inner_frame,text=greeting,text_color='black',font=("Trebuchet MS",25,"bold"))
-    greeting_label.pack()
+    greeting_label.grid(row=0,column=0,columnspan=2,padx=350)
+
+    payment=m.pd.read_sql(f"SELECT Name, Date FROM payments WHERE id='{m.user_id}'",engine).to_numpy()
+    p_frame=m.ctk.CTkFrame(inner_frame,width=400,height=300)
+    p_frame.grid(row=1,column=0,pady=10,padx=10)
+    p_frame.pack_propagate(False)
+    p_guide=m.ctk.CTkLabel(p_frame,text="Upcoming Payments:",font=("Trebuchet MS",30,"bold"))
+    p_guide.pack()
+    p_dict={}
+    p_list=[]
+    p_string=""
+    for p in payment:
+        p_dict[p[1]]=p[0]
+    i=int(datetime.datetime.now().strftime("%d"))
+    while len(p_list)<3 and len(p_list)<len(p_dict.keys()):
+        try:
+            p_list.append(p_dict[str(i)])
+            p_string+=f"{p_dict[str(i)]} is due on the {i}"
+            if i==1 or i==11 or i==21 or i==31:
+                p_string+="st\n"
+            elif i==2 or i==12 or i==22:
+                p_string+="nd\n"
+            elif i==3 or i==13 or i==23:
+                p_string+="rd\n"
+            else:
+                p_string+="th\n"
+        except KeyError:
+            pass
+        finally:
+            if i<31:
+                i+=1
+            else:
+                i=1
+    p_text=m.ctk.CTkLabel(p_frame,text=f"{p_string}",font=("Trebuchet MS",30,"bold"))
+    p_text.pack(pady=30)
+
+
+    m_frame = m.ctk.CTkFrame(inner_frame, width=400, height=300)
+    m_frame.grid(row=1, column=1)
+    m_frame.pack_propagate(False)
+    motivational_messages = {
+        1: "💰 Every dollar you save today is a gift to your future self.",
+        2: "📈 Small steps add up. Keep going—you’re building something meaningful.",
+        3: "🎯 You're closer to your financial goals than you were yesterday.",
+        4: "🌱 Consistency beats perfection. Keep growing your wealth one habit at a time.",
+        5: "🚀 Great progress starts with small actions. You're on the right track.",
+        6: "🏆 Nice work! Your financial discipline is paying off.",
+        7: "🎉 Another milestone reached. Celebrate the progress you've made.",
+        8: "📊 Your smart decisions are creating long-term results.",
+        9: "💪 You've stayed committed—your future self will thank you.",
+        10: "⭐ Progress isn't always dramatic. Today's win still counts.",
+        11: "🐷 Every dollar saved is another dollar working for you.",
+        12: "🌟 Your savings are growing—keep the momentum alive.",
+        13: "🔒 Financial security is built one deposit at a time.",
+        14: "💎 Small savings today can become big opportunities tomorrow.",
+        15: "📈 Your future goals are getting funded, one contribution at a time.",
+        16: "🌳 Wealth grows like a tree: steadily, patiently, and over time.",
+        17: "📈 Time in the market can be more powerful than timing the market.",
+        18: "🚀 Your investments are part of a bigger journey toward financial freedom.",
+        19: "🔍 Stay focused on the long term—today's choices shape tomorrow's outcomes.",
+        20: "💡 Smart investing isn't about perfection; it's about consistency.",
+        21: "☕ Skip one impulse purchase, fund one future goal.",
+        22: "📱 Your money is making moves—even when you're not.",
+        23: "🔥 Momentum is building. Keep the streak alive.",
+        24: "🎯 Future You just gave Present You a high five.",
+        25: "💸 You're telling your money where to go instead of wondering where it went.",
+        26: "🌅 Financial freedom isn't a dream—it's a series of decisions.",
+        27: "🏔️ Big goals are reached through steady progress.",
+        28: "🔑 Every smart financial choice unlocks more possibilities.",
+        29: "🌍 Wealth creates options. You're building yours.",
+        30: "⭐ The habits you build today become the freedom you enjoy tomorrow.",
+        31: "✨ One smart decision today can change your future.",
+        32: "🎯 Goal progress updated—keep it moving!",
+        33: "💪 You're building wealth, one step at a time.",
+        34: "📈 Consistency is your superpower.",
+        35: "🚀 Keep going. Financial freedom is built daily."
+    }
+    message = motivational_messages[random.randint(0, len(motivational_messages) - 1)]
+    m_label=m.ctk.CTkLabel(m_frame,text=message,font=("Trebuchet MS",30))
+    m_label.pack()
+
+
+    accounts = m.pd.read_sql(f"SELECT Name, Total FROM tracking_new WHERE id='{m.user_id}'", engine).to_numpy()
+    a_frame=m.ctk.CTkFrame(inner_frame,width=400,height=300)
+    a_frame.grid(row=2,column=0,pady=(0,10),padx=10)
+    a_frame.grid_propagate(False)
+    a_text = m.ctk.CTkLabel(a_frame,font=("Trebuchet MS", 30, "bold"))
+    a_button = m.ctk.CTkButton(a_frame,font=("Trebuchet MS", 30, "bold"),width=150,height=50)
+    if accounts.size==0:
+        a_text.configure(text="Seems like you haven't created any accounts yet\nClick below to go create one")
+        a_text.grid(row=0,column=0)
+        a_button.configure(text="create",command=lambda:tracking(top_text,inner_frame))
+        a_button.grid(row=1,column=0)
+    else:
+        a_text.configure(text=f"{accounts[(accounts.size//2)-1][0]}:")
+        a_text.grid(row=0,column=0,padx=(50,10),pady=(75,20))
+        a_num=m.ctk.CTkLabel(a_frame,text=f"{accounts[(accounts.size//2)-1][1]}",font=("Trebuchet MS",35,"bold"))
+        a_num.grid(row=0,column=1,padx=(0,30),pady=(75,20))
+        a_button.configure(text="Update",command=lambda:tracking_table(top_text,inner_frame,accounts[(accounts.size//2)-1][0]))
+        a_button.grid(row=1,column=0,columnspan=2,padx=100)
+
+
+    goals = m.pd.read_sql(f"SELECT Name, Total, Current FROM savings_goals WHERE id='{m.user_id}' LIMIT 2",
+                          engine).to_numpy()
+    s_frame = m.ctk.CTkFrame(inner_frame, width=400, height=300)
+    s_frame.grid(row=2, column=1)
+    s_frame.pack_propagate(False)
+    s_button = m.ctk.CTkButton(s_frame, font=("Trebuchet MS", 30, "bold"), width=150, height=50)
+    s1_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
+    s2_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
+    if goals.size == 0:
+        s1_text.configure(text="Seems like you haven't created any savings goals")
+        s1_text.pack()
+        s_button.configure(text="Go to Savings", command=lambda: savings(top_text, inner_frame, root))
+        s_button.pack()
+    else:
+        s1_text.configure(text=f"{goals[0][0]}\n{goals[0][2]} out of {goals[0][1]} Saved!")
+        s1_text.pack()
+        s1_bar = m.ctk.CTkProgressBar(s_frame, height=20)
+        s1_bar.set(goals[0][2] / goals[0][1])
+        s1_bar.pack()
+        if goals.size // 3 > 2:
+            s2_text.configure(text=f"{goals[1]}")
+            s2_text.pack()
+            s2_bar = m.ctk.CTkProgressBar(s_frame, height=20)
+            s2_bar.set(goals[1][2] / goals[1][1])
+
     logout_button = m.ctk.CTkButton(inner_frame,text="Logout",font=("Trebuchet MS",25),command=lambda: logout(root))
-    logout_button.pack()
+    logout_button.grid(row=3,column=0,columnspan=2)
+
 
 
 
