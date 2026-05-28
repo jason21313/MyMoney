@@ -74,14 +74,14 @@ def home(root,top_text,inner_frame,starting):
     else:
         greeting=f"Welcome Back {first[0].upper()}{first[1:]}"
     greeting_label=m.ctk.CTkLabel(inner_frame,text=greeting,text_color='black',font=("Trebuchet MS",25,"bold"))
-    greeting_label.grid(row=0,column=0,columnspan=2,padx=350)
+    greeting_label.grid(row=0,column=0,columnspan=2,padx=550)
 
     payment=m.pd.read_sql(f"SELECT Name, Date FROM payments WHERE id='{m.user_id}'",engine).to_numpy()
-    p_frame=m.ctk.CTkFrame(inner_frame,width=400,height=300)
-    p_frame.grid(row=1,column=0,pady=10,padx=10)
+    p_frame=m.ctk.CTkFrame(inner_frame,width=550,height=300)
+    p_frame.grid(row=1,column=0,pady=10,padx=(100,0))
     p_frame.pack_propagate(False)
     p_guide=m.ctk.CTkLabel(p_frame,text="Upcoming Payments:",font=("Trebuchet MS",30,"bold"))
-    p_guide.pack()
+    p_guide.pack(pady=(30,0))
     p_dict={}
     p_list=[]
     p_string=""
@@ -111,76 +111,80 @@ def home(root,top_text,inner_frame,starting):
     p_text.pack(pady=30)
 
 
-    m_frame = m.ctk.CTkFrame(inner_frame, width=400, height=300)
-    m_frame.grid(row=1, column=1)
+    m_frame = m.ctk.CTkFrame(inner_frame, width=550, height=300)
+    m_frame.grid(row=1, column=1,pady=10,padx=(0,100))
     m_frame.pack_propagate(False)
     motivational_messages = {
-        1: "💰 Every dollar you save today is a gift to your future self.",
-        2: "📈 Small steps add up. Keep going—you’re building something meaningful.",
-        3: "🎯 You're closer to your financial goals than you were yesterday.",
-        4: "🌱 Consistency beats perfection. Keep growing your wealth one habit at a time.",
-        5: "🚀 Great progress starts with small actions. You're on the right track.",
-        6: "🏆 Nice work! Your financial discipline is paying off.",
-        7: "🎉 Another milestone reached. Celebrate the progress you've made.",
-        8: "📊 Your smart decisions are creating long-term results.",
-        9: "💪 You've stayed committed—your future self will thank you.",
-        10: "⭐ Progress isn't always dramatic. Today's win still counts.",
-        11: "🐷 Every dollar saved is another dollar working for you.",
-        12: "🌟 Your savings are growing—keep the momentum alive.",
-        13: "🔒 Financial security is built one deposit at a time.",
-        14: "💎 Small savings today can become big opportunities tomorrow.",
-        15: "📈 Your future goals are getting funded, one contribution at a time.",
-        16: "🌳 Wealth grows like a tree: steadily, patiently, and over time.",
-        17: "📈 Time in the market can be more powerful than timing the market.",
-        18: "🚀 Your investments are part of a bigger journey toward financial freedom.",
-        19: "🔍 Stay focused on the long term—today's choices shape tomorrow's outcomes.",
-        20: "💡 Smart investing isn't about perfection; it's about consistency.",
-        21: "☕ Skip one impulse purchase, fund one future goal.",
-        22: "📱 Your money is making moves—even when you're not.",
-        23: "🔥 Momentum is building. Keep the streak alive.",
-        24: "🎯 Future You just gave Present You a high five.",
-        25: "💸 You're telling your money where to go instead of wondering where it went.",
-        26: "🌅 Financial freedom isn't a dream—it's a series of decisions.",
-        27: "🏔️ Big goals are reached through steady progress.",
-        28: "🔑 Every smart financial choice unlocks more possibilities.",
-        29: "🌍 Wealth creates options. You're building yours.",
-        30: "⭐ The habits you build today become the freedom you enjoy tomorrow.",
-        31: "✨ One smart decision today can change your future.",
-        32: "🎯 Goal progress updated—keep it moving!",
-        33: "💪 You're building wealth, one step at a time.",
-        34: "📈 Consistency is your superpower.",
-        35: "🚀 Keep going. Financial freedom is built daily."
+        1: "💰  Every dollar you save today\n     is a gift to your future self.",
+        2: "📈  Small steps add up.\n     Keep going—you’re building\n     something meaningful.",
+        3: "🎯  You're closer to your\n     financial goals than you\n     were yesterday.",
+        4: "🌱  Consistency beats perfection.\n     Keep growing your wealth\n     one habit at a time.",
+        5: "🚀  Great progress starts with\n     small actions.\n     You're on the right track.",
+        6: "🏆  Nice work!\n     Your financial discipline\n     is paying off.",
+        7: "🎉  Another milestone reached.\n     Celebrate the progress\n     you've made.",
+        8: "📊  Your smart decisions are\n     creating long-term results.",
+        9: "💪  You've stayed committed—\n     your future self will\n     thank you.",
+        10: "⭐  Progress isn't always dramatic.\n     Today's win still counts.",
+        11: "🐷  Every dollar saved is\n     another dollar working\n     for you.",
+        12: "🌟  Your savings are growing—\n     keep the momentum alive.",
+        13: "🔒  Financial security is built\n     one deposit at a time.",
+        14: "💎  Small savings today can\n     become big opportunities\n     tomorrow.",
+        15: "📈  Your future goals are\n     getting funded,\n     one contribution at a time.",
+        16: "🌳  Wealth grows like a tree:\n     steadily, patiently,\n     and over time.",
+        17: "📈  Time in the market can be\n     more powerful than timing\n     the market.",
+        18: "🚀  Your investments are part\n     of a bigger journey toward\n     financial freedom.",
+        19: "🔍  Stay focused on the long term—\n     today's choices shape\n     tomorrow's outcomes.",
+        20: "💡  Smart investing isn't about\n     perfection;\n     it's about consistency.",
+        21: "☕  Skip one impulse purchase,\n     fund one future goal.",
+        22: "📱  Your money is making moves—\n     even when you're not.",
+        23: "🔥  Momentum is building.\n     Keep the streak alive.",
+        24: "🎯  Future You just gave\n     Present You a high five.",
+        25: "💸  You're telling your money\n     where to go instead of\n     wondering where it went.",
+        26: "🌅  Financial freedom isn't\n     a dream—it's a series\n     of decisions.",
+        27: "🏔️  Big goals are reached\n     through steady progress.",
+        28: "🔑  Every smart financial choice\n     unlocks more possibilities.",
+        29: "🌍  Wealth creates options.\n     You're building yours.",
+        30: "⭐  The habits you build today\n     become the freedom you\n     enjoy tomorrow.",
+        31: "✨  One smart decision today\n     can change your future.",
+        32: "🎯  Goal progress updated—\n     keep it moving!",
+        33: "💪  You're building wealth,\n     one step at a time.",
+        34: "📈  Consistency is your\n     superpower.",
+        35: "🚀  Keep going.\n     Financial freedom\n     is built daily."
     }
-    message = motivational_messages[random.randint(0, len(motivational_messages) - 1)]
-    m_label=m.ctk.CTkLabel(m_frame,text=message,font=("Trebuchet MS",30))
-    m_label.pack()
+    message = motivational_messages[random.randint(1, len(motivational_messages))]
+    m_label=m.ctk.CTkLabel(m_frame,text=message,font=("Trebuchet MS",35,"bold"))
+    m_label.pack(pady=50)
 
 
     accounts = m.pd.read_sql(f"SELECT Name, Total FROM tracking_new WHERE id='{m.user_id}'", engine).to_numpy()
-    a_frame=m.ctk.CTkFrame(inner_frame,width=400,height=300)
-    a_frame.grid(row=2,column=0,pady=(0,10),padx=10)
+    a_frame=m.ctk.CTkFrame(inner_frame,width=550,height=300)
+    a_frame.grid(row=2,column=0,pady=(0,20),padx=(100,0))
     a_frame.grid_propagate(False)
-    a_text = m.ctk.CTkLabel(a_frame,font=("Trebuchet MS", 30, "bold"))
-    a_button = m.ctk.CTkButton(a_frame,font=("Trebuchet MS", 30, "bold"),width=150,height=50)
+    a_text = m.ctk.CTkLabel(a_frame,font=("Trebuchet MS", 35, "bold"))
+    a_button = m.ctk.CTkButton(a_frame,font=("Trebuchet MS", 30, "bold"),width=200,height=50)
     if accounts.size==0:
         a_text.configure(text="Seems like you haven't created any accounts yet\nClick below to go create one")
         a_text.grid(row=0,column=0)
         a_button.configure(text="create",command=lambda:tracking(top_text,inner_frame))
         a_button.grid(row=1,column=0)
     else:
+        a_guide=m.ctk.CTkLabel(a_frame,text="Account Totals:",font=("Trebuchet MS", 30, "bold"))
+        a_guide.grid(row=0,column=0,pady=(20,10),padx=150,columnspan=2)
         a_text.configure(text=f"{accounts[(accounts.size//2)-1][0]}:")
-        a_text.grid(row=0,column=0,padx=(50,10),pady=(75,20))
+        a_text.grid(row=1,column=0,pady=(30,20),padx=(90,10))
         a_num=m.ctk.CTkLabel(a_frame,text=f"{accounts[(accounts.size//2)-1][1]}",font=("Trebuchet MS",35,"bold"))
-        a_num.grid(row=0,column=1,padx=(0,30),pady=(75,20))
-        a_button.configure(text="Update",command=lambda:tracking_table(top_text,inner_frame,accounts[(accounts.size//2)-1][0]))
-        a_button.grid(row=1,column=0,columnspan=2,padx=100)
+        a_num.grid(row=1,column=1,padx=(0,100),pady=(30,20))
+        a_button.configure(text=f"Update {accounts[(accounts.size//2)-1][0]}",command=lambda:tracking_table(top_text,inner_frame,accounts[(accounts.size//2)-1][0]))
+        a_button.grid(row=2,column=0,columnspan=2,padx=100)
 
 
     goals = m.pd.read_sql(f"SELECT Name, Total, Current FROM savings_goals WHERE id='{m.user_id}' LIMIT 2",
                           engine).to_numpy()
-    s_frame = m.ctk.CTkFrame(inner_frame, width=400, height=300)
-    s_frame.grid(row=2, column=1)
+    s_frame = m.ctk.CTkFrame(inner_frame, width=550, height=300)
+    s_frame.grid(row=2, column=1,pady=(0,20),padx=(0,100))
     s_frame.pack_propagate(False)
+    s_guide=m.ctk.CTkLabel(s_frame,font=("Trebuchet MS", 30, "bold"),text="Saving Goals:")
+    s_guide.pack(pady=(20,10))
     s_button = m.ctk.CTkButton(s_frame, font=("Trebuchet MS", 30, "bold"), width=150, height=50)
     s1_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
     s2_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
