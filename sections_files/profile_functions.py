@@ -1,9 +1,7 @@
 import sections_files.misc_functions as m
 
-first="joe"
-last="shmoe"
-email="joeshmoe@gmail.com"
-dob="01/01/2000"
+engine=m.create_engine('sqlite:///user_database.db')
+
 
 """Function that creates the contents of the accounts page"""
 def profile(top_text,inner_frame,root):
@@ -11,18 +9,19 @@ def profile(top_text,inner_frame,root):
     top_text.configure(text="MyProfile")
     w = inner_frame.winfo_width()
     h = inner_frame.winfo_height()
+
     text_frame = m.ctk.CTkFrame(inner_frame, width=w//2.5, height=h-425,fg_color="#bebebe")
     text_frame.grid_propagate(False)
     text_frame.grid(row=0,column=0,rowspan=6,pady=15,padx=(40,25))
     info_text=m.ctk.CTkLabel(text_frame,text="MyInfo",font=("Trebuchet MS",45,"bold","underline"),text_color="black")
     info_text.grid(row=0,column=0,padx=100,pady=(25,0),columnspan=2)
-    first_name=m.ctk.CTkLabel(text_frame,text=f"First Name:    {first[0].upper()}{first[1:]}",font=("Trebuchet MS",40,"bold"),text_color="black")
+    first_name=m.ctk.CTkLabel(text_frame,text=f"First Name:    {m.first[0].upper()}{m.first[1:]}",font=("Trebuchet MS",40,"bold"),text_color="black")
     first_name.grid(row=1,column=0,pady=(50,0),padx=75,sticky='w')
-    last_name=m.ctk.CTkLabel(text_frame,text=f"Last Name:   {last[0].upper()}{last[1:]} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    last_name=m.ctk.CTkLabel(text_frame,text=f"Last Name:   {m.last[0].upper()}{m.last[1:]} ",font=("Trebuchet MS",40,"bold"),text_color="black")
     last_name.grid(row=2,column=0,pady=(85,0),padx=75,sticky='w')
-    email_text=m.ctk.CTkLabel(text_frame,text=f"Email:   {email} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    email_text=m.ctk.CTkLabel(text_frame,text=f"Email:   {m.email} ",font=("Trebuchet MS",40,"bold"),text_color="black")
     email_text.grid(row=3,column=0,pady=(85,0),padx=75,sticky='w')
-    dob_text=m.ctk.CTkLabel(text_frame,text=f"Date of Birth:   {dob} ",font=("Trebuchet MS",40,"bold"),text_color="black")
+    dob_text=m.ctk.CTkLabel(text_frame,text=f"Date of Birth:   {m.doob} ",font=("Trebuchet MS",40,"bold"),text_color="black")
     dob_text.grid(row=4,column=0,pady=(85,0),padx=75,sticky='w')
     edit_profile_button=m.ctk.CTkButton(inner_frame,text="Edit Profile",font=("Trebuchet MS",35),
                                       command=lambda: edit_profile(top_text,inner_frame,root),width=250,height=70)
@@ -55,7 +54,7 @@ def edit_profile(top_text,inner_frame,root):
     email_input.grid(row=3,column=0,pady=(0,100),padx=(100,0))
     dob_text = m.ctk.CTkLabel(inner_frame, text="Please enter your Date of Birth Below", font=("Trebuchet MS", 30),text_color="black")
     dob_text.grid(row=2,column=2,pady=0,padx=(0,225))
-    dob_input=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Here(dd/mm/yyyy): ",font=("Trebuchet MS",15),
+    dob_input=m.ctk.CTkEntry(inner_frame,placeholder_text="Enter Here(mm/dd/yyyy): ",font=("Trebuchet MS",15),
                            width=300,height=40,fg_color="lightgray",text_color="#4A4A4A")
     dob_input.grid(row=3,column=2,pady=(0,100),padx=(0,225))
     save_changes_button=m.ctk.CTkButton(inner_frame,text="Save Changes",font=("Trebuchet MS",25),height=70,width=175,
@@ -66,11 +65,13 @@ def edit_profile(top_text,inner_frame,root):
 
 """Function that updates user's personal info and returns the user to the account page"""
 def save_changes(new_first_name,new_last_name,new_email,new_dob,top_text,inner_frame,root,save_changes_button):
-    global first,last,email,dob
-    if new_first_name!="":first=new_first_name
-    if new_last_name!="":last=new_last_name
-    if new_email!="":email=new_email
-    if new_dob!="":dob=new_dob
+    if new_first_name!="":m.first=new_first_name
+    if new_last_name!="":m.last=new_last_name
+    if new_email!="":m.email=new_email
+    if new_dob!="":m.doob=new_dob
+    new_name=m.first+" "+m.last
+    with engine.begin() as con:
+        con.execute(m.text(f"""UPDATE users_final SET name = '{new_name}', username = '{m.email}', dob = '{m.doob}' WHERE id = {m.user_id}"""))
     save_changes_button.destroy()
     profile(top_text,inner_frame,root)
 

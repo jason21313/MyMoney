@@ -9,6 +9,7 @@ from sections_files.tracking_functions import *
 
 engine = m.create_engine('sqlite:///user_database.db')
 
+
 """Function that creates the initial section of the main page of the app"""
 def create_main(root):
     #baseline pieces of the app
@@ -19,6 +20,9 @@ def create_main(root):
     outer_frame=ctk.CTkFrame(root,width=w-50,height=h-100, fg_color="#6C3BAA")
     outer_frame.pack(pady=(25,20))
     outer_frame.grid_propagate(False)
+
+    set_name()
+    print(first)
 
     #non-button pieces inside the outer_frame
     top_frame=ctk.CTkFrame(outer_frame,fg_color="#d7d7d7", width=w-170, height=50)
@@ -66,13 +70,13 @@ def home(root,top_text,inner_frame,starting):
     if not starting:
         now = m.datetime.datetime.now().strftime("%H")
         if 0 <= int(now) <= 12:
-            greeting=f"Good Morning {first[0].upper()}{first[1:]}"
+            greeting=f"Good Morning {m.first[0].upper()}{m.first[1:]}"
         elif 12 <= int(now) <= 18:
-            greeting=f"Good Afternoon {first[0].upper()}{first[1:]}"
+            greeting=f"Good Afternoon {m.first[0].upper()}{m.first[1:]}"
         else:
-            greeting=f"Good Evening {first[0].upper()}{first[1:]}"
+            greeting=f"Good Evening {m.first[0].upper()}{m.first[1:]}"
     else:
-        greeting=f"Welcome Back {first[0].upper()}{first[1:]}"
+        greeting=f"Welcome Back {m.first[0].upper()}{m.first[1:]}"
     greeting_label=m.ctk.CTkLabel(inner_frame,text=greeting,text_color='black',font=("Trebuchet MS",25,"bold"))
     greeting_label.grid(row=0,column=0,columnspan=2,padx=550)
 
@@ -80,35 +84,43 @@ def home(root,top_text,inner_frame,starting):
     p_frame=m.ctk.CTkFrame(inner_frame,width=550,height=300)
     p_frame.grid(row=1,column=0,pady=10,padx=(100,0))
     p_frame.pack_propagate(False)
+    p_text = m.ctk.CTkLabel(p_frame, font=("Trebuchet MS", 30, "bold"))
     p_guide=m.ctk.CTkLabel(p_frame,text="Upcoming Payments:",font=("Trebuchet MS",30,"bold"))
     p_guide.pack(pady=(30,0))
-    p_dict={}
-    p_list=[]
-    p_string=""
-    for p in payment:
-        p_dict[p[1]]=p[0]
-    i=int(datetime.datetime.now().strftime("%d"))
-    while len(p_list)<3 and len(p_list)<len(p_dict.keys()):
-        try:
-            p_list.append(p_dict[str(i)])
-            p_string+=f"{p_dict[str(i)]} is due on the {i}"
-            if i==1 or i==11 or i==21 or i==31:
-                p_string+="st\n"
-            elif i==2 or i==12 or i==22:
-                p_string+="nd\n"
-            elif i==3 or i==13 or i==23:
-                p_string+="rd\n"
-            else:
-                p_string+="th\n"
-        except KeyError:
-            pass
-        finally:
-            if i<31:
-                i+=1
-            else:
-                i=1
-    p_text=m.ctk.CTkLabel(p_frame,text=f"{p_string}",font=("Trebuchet MS",30,"bold"))
-    p_text.pack(pady=30)
+    if payment.size==0:
+        p_text.configure(text="No payments found")
+        p_text.pack(pady=30)
+        p_button=m.ctk.CTkButton(p_frame,command= lambda:payments(top_text,inner_frame),text="Create a Payment",
+                                 font=("Trebuchet MS",30,"bold"),width=150,height=50)
+        p_button.pack(pady=(0,10))
+    else:
+        p_dict={}
+        p_list=[]
+        p_string=""
+        for p in payment:
+            p_dict[p[1]]=p[0]
+        i=int(datetime.datetime.now().strftime("%d"))
+        while len(p_list)<3 and len(p_list)<len(p_dict.keys()):
+            try:
+                p_list.append(p_dict[str(i)])
+                p_string+=f"{p_dict[str(i)]} is due on the {i}"
+                if i==1 or i==11 or i==21 or i==31:
+                    p_string+="st\n"
+                elif i==2 or i==12 or i==22:
+                    p_string+="nd\n"
+                elif i==3 or i==13 or i==23:
+                    p_string+="rd\n"
+                else:
+                    p_string+="th\n"
+            except KeyError:
+                pass
+            finally:
+                if i<31:
+                    i+=1
+                else:
+                    i=1
+        p_text.configure(text=f"{p_string}")
+        p_text.pack(pady=30)
 
 
     m_frame = m.ctk.CTkFrame(inner_frame, width=550, height=300)
@@ -160,15 +172,17 @@ def home(root,top_text,inner_frame,starting):
     a_frame=m.ctk.CTkFrame(inner_frame,width=550,height=300)
     a_frame.grid(row=2,column=0,pady=(0,20),padx=(100,0))
     a_frame.grid_propagate(False)
+    a_frame.pack_propagate(False)
+    a_guide = m.ctk.CTkLabel(a_frame, text="Account Totals:", font=("Trebuchet MS", 30, "bold"))
     a_text = m.ctk.CTkLabel(a_frame,font=("Trebuchet MS", 35, "bold"))
     a_button = m.ctk.CTkButton(a_frame,font=("Trebuchet MS", 30, "bold"),width=200,height=50)
     if accounts.size==0:
-        a_text.configure(text="Seems like you haven't created any accounts yet\nClick below to go create one")
-        a_text.grid(row=0,column=0)
-        a_button.configure(text="create",command=lambda:tracking(top_text,inner_frame))
-        a_button.grid(row=1,column=0)
+        a_guide.pack(pady=(20,10))
+        a_text.configure(text="Seems like you Haven't\nCreated any Accounts yet",font=("Trebuchet MS", 30, "bold"))
+        a_text.pack(pady=(10,20))
+        a_button.configure(text="Go to Accounts",command=lambda:tracking(top_text,inner_frame))
+        a_button.pack()
     else:
-        a_guide=m.ctk.CTkLabel(a_frame,text="Account Totals:",font=("Trebuchet MS", 30, "bold"))
         a_guide.grid(row=0,column=0,pady=(20,10),padx=150,columnspan=2)
         a_text.configure(text=f"{accounts[(accounts.size//2)-1][0]}:")
         a_text.grid(row=1,column=0,pady=(30,20),padx=(90,10))
@@ -189,8 +203,8 @@ def home(root,top_text,inner_frame,starting):
     s1_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
     s2_text = m.ctk.CTkLabel(s_frame, font=("Trebuchet MS", 30, "bold"))
     if goals.size == 0:
-        s1_text.configure(text="Seems like you haven't created any savings goals")
-        s1_text.pack()
+        s1_text.configure(text="Seems like you Haven't\nCreated any Savings Goals")
+        s1_text.pack(pady=(10,20))
         s_button.configure(text="Go to Savings", command=lambda: savings(top_text, inner_frame, root))
         s_button.pack()
     else:

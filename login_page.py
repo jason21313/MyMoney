@@ -2,14 +2,15 @@ from main_page import *
 from PIL import Image
 
 #setup piece for the user database
+engine=m.create_engine('sqlite:///user_database.db')
 connection = sqlite3.connect("user_database.db")
 cursor = connection.cursor()
-cursor.execute("""CREATE TABLE IF NOT EXISTS users_new (id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT);""")
+cursor.execute("""CREATE TABLE IF NOT EXISTS users_final (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, dob TEXT, username TEXT UNIQUE, password TEXT);""")
 
 """function that is used for developmental purposes of resetting the database"""
 def reset_db():
-    cursor.execute("DELETE FROM users_new")
-    cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='users_new'")
+    cursor.execute("DELETE FROM users_final")
+    cursor.execute("UPDATE sqlite_sequence SET seq=0 WHERE name='users_final'")
     connection.commit()
     connection.close()
 
@@ -26,12 +27,12 @@ and match with one in the database
 def login():
     u=user_entry.get().strip()
     p=passwd_entry.get().strip()
-    cursor.execute("SELECT * FROM users_new WHERE username = ? AND password = ? LIMIT 1", (u,p))
+    cursor.execute("SELECT * FROM users_final WHERE username = ? AND password = ? LIMIT 1", (u,p))
     results = cursor.fetchone()
     if results is None:
         new_account_button.pack_forget()
         error_message.pack(pady=(10,0))
-        new_account_button.pack(pady=(30,20))
+        new_account_button.pack(pady=(20,20))
         root.after(4000,error_message.destroy)
     else:
         create_user_id(u,p)
@@ -46,18 +47,28 @@ Function that transitions from the login page to the signup page
 def signup_page():
     for element in root.winfo_children():
         element.pack_forget()
-    root.bind("<Return>", lambda e: create_account(user_entry.get().strip(),passwd_entry.get().strip()))
+    root.bind("<Return>", lambda e: create_account(name_entry.get().strip(),dob_entry.get().strip(),user_entry.get().strip(),passwd_entry.get().strip()))
     error_message.pack_forget()
     gradient_frame.pack(pady=(100,0))
     frame.pack(pady=(0,10))
     img_frame.pack(pady=(50,20))
+    user_entry.pack_forget()
+    passwd_entry.pack_forget()
+    name_entry=m.ctk.CTkEntry(frame,placeholder_text="Enter First and Last Name",
+                              font=("Trebuchet MS",15),width=250)
+    name_entry.pack(pady=10)
+    dob_entry=m.ctk.CTkEntry(frame,placeholder_text="Enter Date of Birth (mm/dd/yyyy)",
+                             font=("Trebuchet MS",15),width=250)
+    dob_entry.pack(pady=(0,10))
+    user_entry.pack(pady=(0,10))
+    passwd_entry.pack(pady=(0,10))
     top.configure(text="To create an Account\nPlease Enter a Username\nand Password")
     image_text.pack_forget()
     enter_button.pack_forget()
     details.pack_forget()
     new_account_button.pack_forget()
     create_button = ctk.CTkButton(frame, text='Sign Up', width=225,
-                                  command=lambda: create_account(user_entry.get().strip(),passwd_entry.get().strip()))
+                                  command=lambda: create_account(name_entry.get().strip(),dob_entry.get().strip(),user_entry.get().strip(),passwd_entry.get().strip()))
     create_button.pack(pady=1)
 
 """
@@ -65,24 +76,29 @@ Function that creates and adds a new account within the user database
 @:param username inputted username for account
 @:param password inputted password for account
 """
-def create_account(username,password):
-    try:
-        cursor.execute(f"INSERT INTO users_new (username,password) VALUES('{username}','{password}')")
-    except sqlite3.IntegrityError:
-        error_message.configure(text="Username already exists")
+def create_account(name,dob,username,password):
+    if name=="" or dob=="" or username == "" or password == "":
+        error_message.configure(text="Please Fill in Each Entry")
         error_message.pack()
-        root.after(4000,error_message.destroy)
+        root.after(4000, error_message.destroy)
         return None
-    connection.commit()
-    connection.close()
-    create_user_id(username, password)
-    return start_main(root)
+    else:
+        try:
+            cursor.execute(f"INSERT INTO users_final (name,dob,username,password) VALUES('{name}','{dob}','{username}','{password}')")
+        except sqlite3.IntegrityError:
+            error_message.configure(text="Username already exists")
+            error_message.pack()
+            root.after(4000,error_message.destroy)
+            return None
+        connection.commit()
+        connection.close()
+        create_user_id(username, password)
+        return start_main(root)
 
 #setup piece to create the login page / behind the scenes things
 root = ctk.CTk()
 ctk.set_appearance_mode("system")
-cursor.execute("SELECT * FROM users_new")
-print(cursor.fetchall())
+cursor.execute("SELECT username, password FROM users_final")
 root.title("MyMoney Login Page")
 root.update_idletasks()
 root.after(1, root.state, 'zoomed')
@@ -113,7 +129,7 @@ top.grid(row=0,column=1)
 details=ctk.CTkLabel(frame,text="Please Login to your Account Below",text_color='black',
                      font=("trebuchet ms",25))
 details.pack(pady=(0,10))
-user_entry=ctk.CTkEntry(frame,placeholder_text='Enter Username:',
+user_entry=ctk.CTkEntry(frame,placeholder_text='Enter Email:',
                         font=("Trebuchet MS",15),width=250)
 user_entry.pack(pady=10)
 passwd_entry=ctk.CTkEntry(frame,placeholder_text='Enter Password:',
